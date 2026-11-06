@@ -3,101 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex AI - SMC Multi-Asset Alignment</title>
+    <title>Apex AI - SMC Pro Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0b0e14; color: #ffffff; }
+        body { 
+            background-color: #080c14; 
+            color: #f8fafc; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+        }
+        
+        /* Glassmorphism Cards */
+        .glass-card { 
+            background: rgba(15, 23, 42, 0.75); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+
+        /* Neon Glow Accents */
+        .glow-cyan { 
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.25); 
+            border: 1px solid rgba(6, 182, 212, 0.4);
+        }
+        .glow-gold { 
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.25); 
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+        .glow-green { 
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); 
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+        .glow-red { 
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); 
+            border: 1px solid rgba(244, 63, 94, 0.4);
+        }
+
+        /* Neon Text Effects */
+        .neon-text-cyan { text-shadow: 0 0 10px rgba(6, 182, 212, 0.6); }
+        .neon-text-gold { text-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
+        .neon-text-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); }
+        .neon-text-red { text-shadow: 0 0 10px rgba(244, 63, 94, 0.8); }
     </style>
 </head>
-<body class="p-4 font-sans select-none pb-24">
+<body class="p-4 select-none pb-28">
     <div class="max-w-md mx-auto space-y-4">
         
-        <!-- Header -->
+        <!-- Top App Bar -->
         <div class="flex justify-between items-center px-1">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-chevron-left text-zinc-400 text-sm"></i>
-                <span class="text-xs text-zinc-300 font-semibold">Apex SMC Alignment</span>
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-teal-400 to-amber-400 flex items-center justify-center text-black font-black shadow-lg shadow-cyan-500/30">
+                    <i class="fa-solid fa-chart-line text-base"></i>
+                </div>
+                <div>
+                    <div class="text-xs font-black text-white tracking-widest uppercase">APEX AI PRO</div>
+                    <div class="text-[10px] text-cyan-400 font-mono font-semibold neon-text-cyan">Institutional SMC Engine</div>
+                </div>
             </div>
-            <span class="bg-cyan-500/10 text-cyan-400 text-xs px-2.5 py-0.5 rounded-full border border-cyan-500/30">Daily-4H-15M</span>
-        </div>
-
-        <!-- Market Status & Live Countdown Bar -->
-        <div class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex justify-between items-center text-xs">
             <div class="flex items-center gap-2">
-                <span id="market-badge" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span id="market-status-text" class="font-bold text-emerald-400">MARKET LIVE</span>
-            </div>
-            <div id="countdown-container" class="text-zinc-400 font-mono text-[11px]">
-                Closes in: <span id="countdown-timer" class="text-cyan-400 font-bold">--:--:--</span>
+                <span id="market-badge" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="market-status-text" class="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 glow-green">LIVE MARKET</span>
             </div>
         </div>
 
-        <!-- Asset Selector Dropdown (Forex, Crypto, Indices) -->
-        <div class="bg-zinc-900/90 border border-zinc-800/80 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
-            <div class="text-xs text-zinc-400 font-medium">Select Asset:</div>
-            <select id="asset-select" onchange="fetchSMCData()" class="bg-zinc-800 text-cyan-400 font-bold text-xs px-3 py-2 rounded-xl border border-zinc-700 focus:outline-none">
-                <optgroup label="Forex Major">
+        <!-- Asset Selector Card -->
+        <div class="glass-card p-4 rounded-2xl shadow-xl flex justify-between items-center glow-cyan">
+            <div>
+                <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider neon-text-gold">Selected Asset</div>
+                <div class="text-sm font-black text-white mt-0.5 flex items-center gap-1.5" id="selected-symbol-label">
+                    EUR/USD <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-mono border border-cyan-500/30">Forex Major</span>
+                </div>
+            </div>
+            <select id="asset-select" onchange="fetchSMCData()" class="bg-slate-900 text-cyan-300 font-black text-xs px-3.5 py-2.5 rounded-xl border border-cyan-500/40 focus:outline-none focus:border-amber-400 shadow-inner">
+                <optgroup label="Forex Major Pairs" class="bg-slate-900 text-white">
                     <option value="EURUSD">EUR/USD</option>
                     <option value="GBPUSD">GBP/USD</option>
                 </optgroup>
-                <optgroup label="Commodities & Indices">
+                <optgroup label="Commodities & Indices" class="bg-slate-900 text-white">
                     <option value="XAUUSD">GOLD (XAU/USD)</option>
                     <option value="NAS100">NASDAQ (NAS100)</option>
                     <option value="US30">DOW JONES (US30)</option>
                     <option value="DXY">DOLLAR INDEX (DXY)</option>
                 </optgroup>
-                <optgroup label="Crypto 24/7">
+                <optgroup label="Crypto 24/7" class="bg-slate-900 text-white">
                     <option value="BTCUSD">BITCOIN (BTC/USD)</option>
                     <option value="ETHUSD">ETHEREUM (ETH/USD)</option>
                 </optgroup>
             </select>
         </div>
 
-        <!-- Alignment Status Box -->
-        <div class="bg-zinc-900/90 border border-zinc-800/80 p-4 rounded-2xl text-center space-y-1 shadow-lg">
-            <div class="text-[10px] text-zinc-500 font-semibold tracking-wider">TIMEFRAME ALIGNMENT STATUS</div>
-            <div id="alignment-val" class="text-lg font-black text-emerald-400">FULL BULLISH ALIGNED 📈</div>
+        <!-- Timeframe Alignment Card -->
+        <div class="glass-card p-5 rounded-2xl text-center space-y-2 glow-cyan relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="text-[10px] text-zinc-400 font-extrabold tracking-widest uppercase">Multi-Timeframe Alignment</div>
+            <div id="alignment-val" class="text-xl font-black text-cyan-400 tracking-tight neon-text-cyan">FULL BULLISH ALIGNED 📈</div>
+            <div class="text-[11px] text-zinc-400 font-medium">Daily Bias + 4H Structure + 15M CHoCH Verified</div>
         </div>
 
-        <!-- Signal Card -->
-        <div class="bg-zinc-900/90 border border-zinc-800/80 p-5 rounded-2xl text-center space-y-2 shadow-xl">
-            <div class="text-xs text-zinc-500 font-medium">ENTRY SIGNAL</div>
-            <div id="signal-action" class="text-3xl font-black text-cyan-400">MONITORING</div>
-            <div class="text-xs text-zinc-400">Entry: <span id="entry-price" class="text-cyan-400 font-mono font-bold">---</span></div>
-        </div>
-
-        <!-- Risk Management (SL & TP 1:4) -->
-        <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3.5 rounded-xl">
-                <div class="text-zinc-500 text-[10px]">STOP LOSS (SL)</div>
-                <div class="font-bold text-rose-500 font-mono mt-1 text-sm" id="sl-val">---</div>
-            </div>
-            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3.5 rounded-xl">
-                <div class="text-zinc-500 text-[10px]">FULL TARGET (RR 1:4)</div>
-                <div class="font-bold text-emerald-400 font-mono mt-1 text-sm" id="tp-val">---</div>
+        <!-- Main Signal Output Card -->
+        <div id="signal-card-box" class="glass-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden">
+            <div class="absolute -left-6 -bottom-6 w-24 h-24 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="text-xs text-amber-400 font-extrabold uppercase tracking-widest neon-text-gold">Institutional Signal Output</div>
+            <div id="signal-action" class="text-4xl font-black text-amber-400 tracking-wider neon-text-gold">MONITORING</div>
+            <div class="text-xs text-zinc-200 bg-slate-900/80 py-2 px-4 rounded-xl inline-block border border-amber-500/30">
+                Execution Price: <span id="entry-price" class="text-amber-400 font-mono font-black text-base neon-text-gold">---</span>
             </div>
         </div>
 
-        <!-- Timeframe Breakdown Grid -->
-        <div class="space-y-2 text-xs">
-            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex justify-between items-center">
-                <span class="text-zinc-400">Daily Trend Bias:</span>
-                <span class="font-bold text-amber-400" id="daily-bias-val">BULLISH</span>
+        <!-- Risk Management Targets (SL & TP 1:4) -->
+        <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="glass-card p-4 rounded-2xl glow-red">
+                <div class="text-rose-400 text-[10px] font-black flex items-center gap-1.5 uppercase tracking-wider">
+                    <i class="fa-solid fa-shield-halved text-rose-500 text-sm"></i> STOP LOSS (SL)
+                </div>
+                <div class="font-black text-rose-400 font-mono mt-2 text-base neon-text-red" id="sl-val">---</div>
             </div>
-            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex justify-between items-center">
-                <span class="text-zinc-400">4H Structure Break:</span>
-                <span class="font-bold text-blue-400" id="h4-val">Bullish BOS</span>
-            </div>
-            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex justify-between items-center">
-                <span class="text-zinc-400">15M CHoCH Entry:</span>
-                <span class="font-bold text-emerald-400" id="m15-val">15M CHoCH</span>
+            <div class="glass-card p-4 rounded-2xl glow-green">
+                <div class="text-emerald-400 text-[10px] font-black flex items-center gap-1.5 uppercase tracking-wider">
+                    <i class="fa-solid fa-bullseye text-emerald-400 text-sm"></i> FULL TARGET (RR 1:4)
+                </div>
+                <div class="font-black text-emerald-400 font-mono mt-2 text-base neon-text-green" id="tp-val">---</div>
             </div>
         </div>
 
-        <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-black font-extrabold py-3.5 rounded-2xl transition shadow-lg text-sm tracking-wide">
-            REFRESH ALIGNMENT SIGNAL
+        <!-- SMC Timeframe Breakdown -->
+        <div class="glass-card p-4.5 rounded-2xl space-y-3 border-cyan-500/20">
+            <div class="flex justify-between items-center text-xs border-b border-slate-800 pb-2.5 px-1">
+                <span class="text-zinc-300 font-extrabold uppercase tracking-wider text-[11px]">SMC Structure Breakdown</span>
+                <span class="text-cyan-400 font-mono text-[10px] font-bold neon-text-cyan">Real Sync</span>
+            </div>
+
+            <div class="space-y-2 text-xs">
+                <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-calendar-day text-amber-400"></i> Daily Bias:</span>
+                    <span class="font-black text-amber-400 font-mono text-xs neon-text-gold" id="daily-bias-val">BULLISH</span>
+                </div>
+                <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-chart-line text-cyan-400"></i> 4H Structure (HH/HL):</span>
+                    <span class="font-black text-cyan-400 font-mono text-xs neon-text-cyan" id="h4-val">Bullish BOS</span>
+                </div>
+                <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                    <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-bolt text-emerald-400"></i> 15M CHoCH + FVG:</span>
+                    <span class="font-black text-emerald-400 font-mono text-xs neon-text-green" id="m15-val">Waiting Setup</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Refresh Button -->
+        <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-cyan-400 via-teal-400 to-amber-400 hover:opacity-95 text-black font-black py-4 rounded-2xl transition shadow-lg shadow-cyan-500/20 text-xs tracking-widest uppercase flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate text-sm"></i> Refresh Live SMC Market Data
+        </button>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="fixed bottom-0 left-0 right-0 glass-card border-t border-slate-800 py-3.5 px-6 flex justify-around items-center backdrop-blur-xl z-50">
+        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
+            <i class="fa-solid fa-chart-pie text-base"></i>
+            <span class="text-[10px] font-bold">Overview</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-cyan-400 font-extrabold neon-text-cyan">
+            <i class="fa-solid fa-bolt text-base"></i>
+            <span class="text-[10px]">Signal AI</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
+            <i class="fa-solid fa-clock-rotate-left text-base"></i>
+            <span class="text-[10px] font-bold">History</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
+            <i class="fa-regular fa-user text-base"></i>
+            <span class="text-[10px] font-bold">Profile</span>
         </button>
     </div>
 
@@ -106,7 +180,10 @@
         if (tg) tg.expand();
 
         async function fetchSMCData() {
-            const selectedAsset = document.getElementById('asset-select').value;
+            const selectElem = document.getElementById('asset-select');
+            const selectedAsset = selectElem.value;
+            document.getElementById('selected-symbol-label').childNodes[0].nodeValue = selectElem.options[selectElem.selectedIndex].text + " ";
+
             try {
                 const response = await fetch(`/api/signal?symbol=${selectedAsset}`);
                 const data = await response.json();
@@ -120,79 +197,26 @@
                 document.getElementById('m15-val').innerText = data.m15_choch;
                 
                 const actionElem = document.getElementById('signal-action');
+                const signalBox = document.getElementById('signal-card-box');
                 actionElem.innerText = data.action;
-                if(data.action === "BUY") {
-                    actionElem.className = "text-3xl font-black text-emerald-400 animate-pulse";
-                } else if(data.action === "SELL") {
-                    actionElem.className = "text-3xl font-black text-rose-500 animate-pulse";
-                } else {
-                    actionElem.className = "text-3xl font-black text-cyan-400";
-                }
 
-                updateMarketStatus(selectedAsset);
+                if(data.action === "BUY") {
+                    actionElem.className = "text-4xl font-black text-emerald-400 animate-pulse tracking-wider neon-text-green";
+                    signalBox.className = "glass-card p-6 rounded-2xl text-center space-y-3 glow-green relative overflow-hidden";
+                } else if(data.action === "SELL") {
+                    actionElem.className = "text-4xl font-black text-rose-500 animate-pulse tracking-wider neon-text-red";
+                    signalBox.className = "glass-card p-6 rounded-2xl text-center space-y-3 glow-red relative overflow-hidden";
+                } else {
+                    actionElem.className = "text-3xl font-black text-amber-400 tracking-wider neon-text-gold";
+                    signalBox.className = "glass-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden";
+                }
             } catch (err) {
                 console.log("Error fetching data");
             }
         }
 
-        // Market Hours & Live Countdown Logic
-        function updateMarketStatus(symbol) {
-            const now = new Date();
-            const day = now.getUTCDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday
-            const hour = now.getUTCHours();
-
-            const isCrypto = symbol.includes("BTC") || symbol.includes("ETH");
-            const badge = document.getElementById('market-badge');
-            const statusText = document.getElementById('market-status-text');
-            const timerText = document.getElementById('countdown-timer');
-
-            if (isCrypto) {
-                badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                statusText.innerText = "CRYPTO 24/7 LIVE";
-                statusText.className = "font-bold text-emerald-400";
-                timerText.innerText = "Always Active";
-                return;
-            }
-
-            // Forex & Indices Market Hours Check (Closed Friday 22:00 UTC to Sunday 22:00 UTC)
-            const isClosed = (day === 5 && hour >= 22) || day === 6 || (day === 0 && hour < 22);
-
-            if (isClosed) {
-                badge.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
-                statusText.innerText = "MARKET CLOSED";
-                statusText.className = "font-bold text-rose-500";
-                
-                // Calculate time until Sunday 22:00 UTC
-                let target = new Date(now);
-                target.setUTCDate(now.getUTCDate() + ((7 - now.getUTCDay()) % 7));
-                target.setUTCHours(22, 0, 0, 0);
-                if (target <= now) target.setDate(target.getDate() + 7);
-
-                const diff = target - now;
-                const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
-                const minsLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const secsLeft = Math.floor((diff % (1000 * 60)) / 1000);
-
-                timerText.innerText = `${hoursLeft}h ${minsLeft}m ${secsLeft}s`;
-            } else {
-                badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
-                statusText.innerText = "MARKET LIVE";
-                statusText.className = "font-bold text-emerald-400";
-                
-                // Countdown to Friday 22:00 UTC Close
-                let target = new Date(now);
-                target.setUTCDate(now.getUTCDate() + ((5 - now.getUTCDay() + 7) % 7));
-                target.setUTCHours(22, 0, 0, 0);
-
-                const diff = target - now;
-                const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
-                const minsLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-                timerText.innerText = `${hoursLeft}h ${minsLeft}m remaining`;
-            }
-        }
-
         setInterval(fetchSMCData, 5000);
+        fetchSMCData();
     </script>
 </body>
 </html>
