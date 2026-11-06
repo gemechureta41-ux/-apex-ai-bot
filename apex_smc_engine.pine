@@ -1,17 +1,14 @@
 //@version=6
 indicator("Apex AI SMC Timeframe Alignment Engine", overlay=true)
 
-// Timeframe Inputs
 tf_daily = input.timeframe("D", title="Daily Bias")
 tf_h4    = input.timeframe("240", title="4H Structure")
 tf_m15   = input.timeframe("15", title="15M Entry Setup")
 
-// 1. Daily Bias (Close vs Open)
 d_close = request.security(syminfo.tickerid, tf_daily, close)
 d_open  = request.security(syminfo.tickerid, tf_daily, open)
 d_bull  = d_close >= d_open
 
-// 2. 4H Structure (BOS / CHoCH Body Break)
 h4_high = request.security(syminfo.tickerid, tf_h4, ta.highest(high, 10)[1])
 h4_low  = request.security(syminfo.tickerid, tf_h4, ta.lowest(low, 10)[1])
 h4_close = request.security(syminfo.tickerid, tf_h4, close)
@@ -19,24 +16,18 @@ h4_close = request.security(syminfo.tickerid, tf_h4, close)
 h4_bull = h4_close > h4_high
 h4_bear = h4_close < h4_low
 
-// 3. 15M Entry Setup (CHoCH + FVG)
 m15_high = ta.highest(high, 5)[1]
 m15_low  = ta.lowest(low, 5)[1]
 
 m15_bull = ta.crossover(close, m15_high)
 m15_bear = ta.crossunder(close, m15_low)
 
-// Alignment Determination
 tf_aligned_buy  = d_bull and h4_bull and m15_bull
 tf_aligned_sell = (not d_bull) and h4_bear and m15_bear
 
-alignment_status = tf_aligned_buy ? "FULL BULLISH ALIGNED 📈" : (tf_aligned_sell ? "FULL BEARISH ALIGNED 📉" : "MIXED / UNALIGNED ⚠️")
-
-// Plot Signal Arrows on Chart
 plotshape(tf_aligned_buy, title="Aligned BUY", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
 plotshape(tf_aligned_sell, title="Aligned SELL", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
 
-// Dynamic Webhook Alert
 if (tf_aligned_buy)
     msg_buy = '{"symbol": "' + syminfo.ticker + '", "action": "BUY", "entry": "' + str.tostring(close, "#.#####") + '", "alignment": "FULL BULLISH ALIGNED", "daily_bias": "BULLISH", "h4_structure": "Bullish BOS", "m15_choch": "15M CHoCH Confirmed", "sl": "' + str.tostring(m15_low, "#.#####") + '", "tp": "' + str.tostring(close + (close - m15_low)*4, "#.#####") + '"}'
     alert(msg_buy, alert.freq_once_per_bar_close)
