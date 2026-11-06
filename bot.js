@@ -1,6 +1,6 @@
 const { Telegraf, Markup } = require('telegraf');
+const http = require('http');
 
-// Token kee Render Environment Variables irraa fudhata (Secure)
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.start((ctx) => {
@@ -17,3 +17,14 @@ bot.start((ctx) => {
 
 bot.launch();
 console.log("Apex AI Bot is running...");
+
+// Render port scan akka qabatuuf fi akka hin cufne HTTP Server banuu
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Apex AI Bot is active and running!\n');
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}`);
+});
