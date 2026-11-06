@@ -1,12 +1,13 @@
 {
   "name": "apex-ai-bot",
   "version": "1.0.0",
-  "description": "Apex AI Trading Bot and Real Market Mini App",
-  "main": "bot.js",
+  "description": "Apex AI Bot - SMC Telegram Mini App & TradingView Webhook",
+  "main": "server.js",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node server.js"
   },
   "dependencies": {
-    "telegraf": "^4.16.3"
+    "express": "^4.18.2",
+    "telegraf": "^4.12.2"
   }
 }
