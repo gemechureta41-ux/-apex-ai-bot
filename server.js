@@ -11,22 +11,26 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let smcSignals = {
-    "EURUSD": { symbol: "EUR/USD", action: "MONITORING", entry: "---", structure_4h: "Waiting 4H Zone", choch_15m: "Scanning CHoCH", sl: "---", tp1: "---", tp2: "---" },
-    "XAUUSD": { symbol: "GOLD (XAU/USD)", action: "MONITORING", entry: "---", structure_4h: "Waiting 4H Zone", choch_15m: "Scanning CHoCH", sl: "---", tp1: "---", tp2: "---" },
-    "NAS100": { symbol: "NASDAQ (NAS100)", action: "MONITORING", entry: "---", structure_4h: "Waiting 4H Zone", choch_15m: "Scanning CHoCH", sl: "---", tp1: "---", tp2: "---" },
-    "DXY": { symbol: "DXY (Dollar Index)", action: "MONITORING", entry: "---", structure_4h: "Waiting 4H Zone", choch_15m: "Scanning CHoCH", sl: "---", tp1: "---", tp2: "---" }
+let assetDatabase = {
+    "EURUSD": { symbol: "EUR/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
+    "GBPUSD": { symbol: "GBP/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
+    "XAUUSD": { symbol: "GOLD (XAU/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
+    "NAS100": { symbol: "NASDAQ (NAS100)", category: "Indices", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BEARISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
+    "US30": { symbol: "DOW JONES (US30)", category: "Indices", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BEARISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
+    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
+    "ETHUSD": { symbol: "ETHEREUM (ETH/USD)", category: "Crypto", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
+    "DXY": { symbol: "DOLLAR INDEX (DXY)", category: "Indices", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" }
 };
 
-let activeSignal = smcSignals["EURUSD"];
+let activeSignal = assetDatabase["EURUSD"];
 
 bot.start((ctx) => {
     ctx.reply(
-        "🤖 *Apex AI SMC Master Engine*\n\n4H Supply/Demand & 15M CHoCH + FVG + OB + RR 1:4 (Partial & Full TP) Live Analyzer.",
+        "🤖 *Apex AI SMC Alignment Bot*\n\nDaily -> 4H -> 15M Timeframe Alignment + Market Hours Countdown (Forex, Crypto, Indices).",
         {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
-                [Markup.button.webApp("⚡ Open SMC Mini App", MINI_APP_URL)]
+                [Markup.button.webApp("⚡ Open Apex AI Mini App", MINI_APP_URL)]
             ])
         }
     );
@@ -37,20 +41,22 @@ app.post('/webhook/tradingview', (req, res) => {
     if (alert && alert.symbol) {
         const cleanSymbol = alert.symbol.replace('/', '').toUpperCase();
         
-        smcSignals[cleanSymbol] = {
+        assetDatabase[cleanSymbol] = {
             symbol: alert.symbol,
+            category: alert.category || "Market",
             action: alert.action || "BUY/SELL",
             entry: alert.entry || "Market Price",
-            structure_4h: alert.structure_4h || "4H Level Confirmed",
-            choch_15m: alert.choch_15m || "CHoCH Verified",
+            alignment: alert.alignment || "FULL ALIGNED",
+            daily_bias: alert.daily_bias || "BULLISH",
+            h4_structure: alert.h4_structure || "BOS Confirmed",
+            m15_choch: alert.m15_choch || "15M CHoCH Verified",
             sl: alert.sl || "---",
-            tp1: alert.tp1 || "---",
-            tp2: alert.tp2 || "---",
+            tp: alert.tp || "---",
             timestamp: new Date().toLocaleTimeString()
         };
         
-        activeSignal = smcSignals[cleanSymbol];
-        console.log(`[SMC Master Alert] ${alert.symbol}:`, activeSignal);
+        activeSignal = assetDatabase[cleanSymbol];
+        console.log(`[SMC Aligned Alert] ${alert.symbol}:`, activeSignal);
         return res.status(200).json({ status: "success" });
     }
     res.status(400).json({ status: "error" });
@@ -58,8 +64,8 @@ app.post('/webhook/tradingview', (req, res) => {
 
 app.get('/api/signal', (req, res) => {
     const requestedSymbol = req.query.symbol;
-    if (requestedSymbol && smcSignals[requestedSymbol]) {
-        return res.json(smcSignals[requestedSymbol]);
+    if (requestedSymbol && assetDatabase[requestedSymbol]) {
+        return res.json(assetDatabase[requestedSymbol]);
     }
     res.json(activeSignal);
 });
