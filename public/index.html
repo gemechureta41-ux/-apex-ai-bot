@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Apex AI - SMC Master Signal</title>
+    <title>Apex AI - SMC Multi-Asset Alignment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,61 +18,86 @@
         <div class="flex justify-between items-center px-1">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-chevron-left text-zinc-400 text-sm"></i>
-                <span class="text-xs text-zinc-300 font-semibold">Apex SMC Master</span>
+                <span class="text-xs text-zinc-300 font-semibold">Apex SMC Alignment</span>
             </div>
-            <span class="bg-amber-500/10 text-amber-400 text-xs px-2.5 py-0.5 rounded-full border border-amber-500/30">Live RR 1:4</span>
+            <span class="bg-cyan-500/10 text-cyan-400 text-xs px-2.5 py-0.5 rounded-full border border-cyan-500/30">Daily-4H-15M</span>
         </div>
 
-        <h1 class="text-2xl font-bold tracking-tight">Institutional Setup</h1>
+        <!-- Market Status & Live Countdown Bar -->
+        <div class="bg-zinc-900/90 border border-zinc-800/80 p-3 rounded-2xl flex justify-between items-center text-xs">
+            <div class="flex items-center gap-2">
+                <span id="market-badge" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="market-status-text" class="font-bold text-emerald-400">MARKET LIVE</span>
+            </div>
+            <div id="countdown-container" class="text-zinc-400 font-mono text-[11px]">
+                Closes in: <span id="countdown-timer" class="text-cyan-400 font-bold">--:--:--</span>
+            </div>
+        </div>
 
-        <!-- Asset Selector -->
+        <!-- Asset Selector Dropdown (Forex, Crypto, Indices) -->
         <div class="bg-zinc-900/90 border border-zinc-800/80 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
-            <div class="text-xs text-zinc-400 font-medium">Select Market:</div>
-            <select id="asset-select" onchange="fetchSMCData()" class="bg-zinc-800 text-amber-400 font-bold text-xs px-3 py-2 rounded-xl border border-zinc-700 focus:outline-none">
-                <option value="EURUSD">EUR/USD (Forex)</option>
-                <option value="XAUUSD">GOLD (XAU/USD)</option>
-                <option value="NAS100">NASDAQ (NAS100)</option>
-                <option value="DXY">DXY (Dollar Index)</option>
+            <div class="text-xs text-zinc-400 font-medium">Select Asset:</div>
+            <select id="asset-select" onchange="fetchSMCData()" class="bg-zinc-800 text-cyan-400 font-bold text-xs px-3 py-2 rounded-xl border border-zinc-700 focus:outline-none">
+                <optgroup label="Forex Major">
+                    <option value="EURUSD">EUR/USD</option>
+                    <option value="GBPUSD">GBP/USD</option>
+                </optgroup>
+                <optgroup label="Commodities & Indices">
+                    <option value="XAUUSD">GOLD (XAU/USD)</option>
+                    <option value="NAS100">NASDAQ (NAS100)</option>
+                    <option value="US30">DOW JONES (US30)</option>
+                    <option value="DXY">DOLLAR INDEX (DXY)</option>
+                </optgroup>
+                <optgroup label="Crypto 24/7">
+                    <option value="BTCUSD">BITCOIN (BTC/USD)</option>
+                    <option value="ETHUSD">ETHEREUM (ETH/USD)</option>
+                </optgroup>
             </select>
+        </div>
+
+        <!-- Alignment Status Box -->
+        <div class="bg-zinc-900/90 border border-zinc-800/80 p-4 rounded-2xl text-center space-y-1 shadow-lg">
+            <div class="text-[10px] text-zinc-500 font-semibold tracking-wider">TIMEFRAME ALIGNMENT STATUS</div>
+            <div id="alignment-val" class="text-lg font-black text-emerald-400">FULL BULLISH ALIGNED 📈</div>
         </div>
 
         <!-- Signal Card -->
         <div class="bg-zinc-900/90 border border-zinc-800/80 p-5 rounded-2xl text-center space-y-2 shadow-xl">
-            <div class="text-xs text-zinc-500 font-medium">ENTRY SIGNAL & STRUCTURE</div>
-            <div id="signal-action" class="text-3xl font-black text-amber-400">MONITORING</div>
-            <div class="text-xs text-zinc-400">Entry Price: <span id="entry-price" class="text-amber-400 font-mono font-bold">---</span></div>
+            <div class="text-xs text-zinc-500 font-medium">ENTRY SIGNAL</div>
+            <div id="signal-action" class="text-3xl font-black text-cyan-400">MONITORING</div>
+            <div class="text-xs text-zinc-400">Entry: <span id="entry-price" class="text-cyan-400 font-mono font-bold">---</span></div>
         </div>
 
-        <!-- Risk Management & TP/SL Grid -->
+        <!-- Risk Management (SL & TP 1:4) -->
         <div class="grid grid-cols-2 gap-2 text-xs">
             <div class="bg-zinc-900/80 border border-zinc-800/60 p-3.5 rounded-xl">
                 <div class="text-zinc-500 text-[10px]">STOP LOSS (SL)</div>
                 <div class="font-bold text-rose-500 font-mono mt-1 text-sm" id="sl-val">---</div>
             </div>
             <div class="bg-zinc-900/80 border border-zinc-800/60 p-3.5 rounded-xl">
-                <div class="text-zinc-500 text-[10px]">PARTIAL TP (1:2)</div>
-                <div class="font-bold text-blue-400 font-mono mt-1 text-sm" id="tp1-val">---</div>
-            </div>
-            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3.5 rounded-xl col-span-2">
-                <div class="text-zinc-500 text-[10px]">FULL TARGET / TP (RR 1:4)</div>
-                <div class="font-bold text-emerald-400 font-mono mt-1 text-base" id="tp2-val">---</div>
+                <div class="text-zinc-500 text-[10px]">FULL TARGET (RR 1:4)</div>
+                <div class="font-bold text-emerald-400 font-mono mt-1 text-sm" id="tp-val">---</div>
             </div>
         </div>
 
-        <!-- Structure Details -->
+        <!-- Timeframe Breakdown Grid -->
         <div class="space-y-2 text-xs">
-            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3.5 rounded-xl flex justify-between items-center">
-                <span class="text-zinc-400">4H Key Supply / Demand:</span>
-                <span class="font-bold text-cyan-400" id="h4-val">Scanning Zone...</span>
+            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex justify-between items-center">
+                <span class="text-zinc-400">Daily Trend Bias:</span>
+                <span class="font-bold text-amber-400" id="daily-bias-val">BULLISH</span>
             </div>
-            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3.5 rounded-xl flex justify-between items-center">
-                <span class="text-zinc-400">15M CHoCH + FVG + OB:</span>
-                <span class="font-bold text-emerald-400" id="choch-val">Waiting Setup...</span>
+            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex justify-between items-center">
+                <span class="text-zinc-400">4H Structure Break:</span>
+                <span class="font-bold text-blue-400" id="h4-val">Bullish BOS</span>
+            </div>
+            <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex justify-between items-center">
+                <span class="text-zinc-400">15M CHoCH Entry:</span>
+                <span class="font-bold text-emerald-400" id="m15-val">15M CHoCH</span>
             </div>
         </div>
 
-        <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 text-black font-extrabold py-3.5 rounded-2xl transition shadow-lg text-sm tracking-wide">
-            REFRESH MASTER SIGNAL
+        <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 text-black font-extrabold py-3.5 rounded-2xl transition shadow-lg text-sm tracking-wide">
+            REFRESH ALIGNMENT SIGNAL
         </button>
     </div>
 
@@ -86,12 +111,13 @@
                 const response = await fetch(`/api/signal?symbol=${selectedAsset}`);
                 const data = await response.json();
 
+                document.getElementById('alignment-val').innerText = data.alignment;
                 document.getElementById('entry-price').innerText = data.entry;
                 document.getElementById('sl-val').innerText = data.sl;
-                document.getElementById('tp1-val').innerText = data.tp1;
-                document.getElementById('tp2-val').innerText = data.tp2;
-                document.getElementById('h4-val').innerText = data.structure_4h;
-                document.getElementById('choch-val').innerText = data.choch_15m;
+                document.getElementById('tp-val').innerText = data.tp;
+                document.getElementById('daily-bias-val').innerText = data.daily_bias;
+                document.getElementById('h4-val').innerText = data.h4_structure;
+                document.getElementById('m15-val').innerText = data.m15_choch;
                 
                 const actionElem = document.getElementById('signal-action');
                 actionElem.innerText = data.action;
@@ -100,10 +126,69 @@
                 } else if(data.action === "SELL") {
                     actionElem.className = "text-3xl font-black text-rose-500 animate-pulse";
                 } else {
-                    actionElem.className = "text-3xl font-black text-amber-400";
+                    actionElem.className = "text-3xl font-black text-cyan-400";
                 }
+
+                updateMarketStatus(selectedAsset);
             } catch (err) {
                 console.log("Error fetching data");
+            }
+        }
+
+        // Market Hours & Live Countdown Logic
+        function updateMarketStatus(symbol) {
+            const now = new Date();
+            const day = now.getUTCDay(); // 0 = Sunday, 5 = Friday, 6 = Saturday
+            const hour = now.getUTCHours();
+
+            const isCrypto = symbol.includes("BTC") || symbol.includes("ETH");
+            const badge = document.getElementById('market-badge');
+            const statusText = document.getElementById('market-status-text');
+            const timerText = document.getElementById('countdown-timer');
+
+            if (isCrypto) {
+                badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                statusText.innerText = "CRYPTO 24/7 LIVE";
+                statusText.className = "font-bold text-emerald-400";
+                timerText.innerText = "Always Active";
+                return;
+            }
+
+            // Forex & Indices Market Hours Check (Closed Friday 22:00 UTC to Sunday 22:00 UTC)
+            const isClosed = (day === 5 && hour >= 22) || day === 6 || (day === 0 && hour < 22);
+
+            if (isClosed) {
+                badge.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                statusText.innerText = "MARKET CLOSED";
+                statusText.className = "font-bold text-rose-500";
+                
+                // Calculate time until Sunday 22:00 UTC
+                let target = new Date(now);
+                target.setUTCDate(now.getUTCDate() + ((7 - now.getUTCDay()) % 7));
+                target.setUTCHours(22, 0, 0, 0);
+                if (target <= now) target.setDate(target.getDate() + 7);
+
+                const diff = target - now;
+                const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+                const minsLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secsLeft = Math.floor((diff % (1000 * 60)) / 1000);
+
+                timerText.innerText = `${hoursLeft}h ${minsLeft}m ${secsLeft}s`;
+            } else {
+                badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse";
+                statusText.innerText = "MARKET LIVE";
+                statusText.className = "font-bold text-emerald-400";
+                
+                // Countdown to Friday 22:00 UTC Close
+                let target = new Date(now);
+                target.setUTCDate(now.getUTCDate() + ((5 - now.getUTCDay() + 7) % 7));
+                target.setUTCHours(22, 0, 0, 0);
+
+                const diff = target - now;
+                const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+                const minsLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                timerText.innerText = `${hoursLeft}h ${minsLeft}m remaining`;
             }
         }
 
