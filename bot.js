@@ -1,6 +1,7 @@
 const { Telegraf, Markup } = require('telegraf');
 
-const bot = new Telegraf('9296660841:AAFo6BJF8Cn1xxcH7V4ngbSUTS8MN8SjdWQ');
+// Token kee Render Environment Variables irraa fudhata (Secure)
+const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.start((ctx) => {
     ctx.reply(
