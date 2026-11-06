@@ -1,35 +1,51 @@
 //@version=6
-indicator("Apex AI SMC Live Engine", overlay=true, max_boxes_count=500, max_lines_count=500)
+indicator("Apex AI Advanced SMC Engine", overlay=true, max_boxes_count=500, max_lines_count=500)
 
-// Timeframe Settings
-tf_trend = input.timeframe("240", title="Trend/Zone Timeframe (4H)")
-tf_entry = input.timeframe("15", title="Entry Timeframe (15m/30m)")
+// Timeframe Inputs
+tf_h4  = input.timeframe("240", title="Structure Timeframe (4H)")
+tf_entry = input.timeframe("15", title="Entry Timeframe (15M/30M)")
 
-// 1. Multi-Timeframe High/Low for 4H Supply/Demand Detection
-high_4h = request.security(syminfo.tickerid, tf_trend, ta.highest(high, 10))
-low_4h  = request.security(syminfo.tickerid, tf_trend, ta.lowest(low, 10))
+// 1. 4H Market Structure (LH, LL, HH, HL) & Supply/Demand Zones
+h4_high = request.security(syminfo.tickerid, tf_h4, ta.highest(high, 10)[1])
+h4_low  = request.security(syminfo.tickerid, tf_h4, ta.lowest(low, 10)[1])
+h4_close = request.security(syminfo.tickerid, tf_h4, close)
 
-// 2. 15m CHoCH Detection (Change of Character)
-bullish_choch = ta.crossover(close, ta.highest(high, 5)[1])
-bearish_choch = ta.crossunder(close, ta.lowest(low, 5)[1])
+// 4H BOS / CHoCH Body Close Detection
+h4_bullish_bos = ta.crossover(h4_close, h4_high)
+h4_bearish_bos = ta.crossunder(h4_close, h4_low)
 
-// 3. FVG (Fair Value Gap) Detection
-bullish_fvg = (low > high[2])
-bearish_fvg = (high < low[2])
+// 2. 15M/30M Entry Timeframe CHoCH, FVG & Order Block (OB) Logic
+m15_high = ta.highest(high, 5)[1]
+m15_low  = ta.lowest(low, 5)[1]
 
-// 4. Session Identification (London & New York)
-time_in_session = not na(time(timeframe.period, "0800-1700:23456"))
-session_name = time_in_session ? "London/NY Active" : "Asian Session"
+bullish_choch_15m = ta.crossover(close, m15_high)
+bearish_choch_15m = ta.crossunder(close, m15_low)
 
-// Plot visual cues on TradingView Chart
-plotshape(bullish_choch, title="Bullish CHoCH", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
-plotshape(bearish_choch, title="Bearish CHoCH", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
+// FVG (Fair Value Gap) & Order Block Detection
+is_bullish_fvg = (low > high[2])
+is_bearish_fvg = (high < low[2])
 
-// 5. Dynamic Webhook Alerts for Apex AI Bot (Pine Script v6 syntax)
-if (bullish_choch)
-    alert_msg_buy = '{"symbol": "' + syminfo.ticker + '", "action": "BUY", "entry": "' + str.tostring(close, "#.#####") + '", "trend": "4H Demand Active", "structure": "15m CHoCH Confirmed", "ob": "15m Bullish OB", "fvg": "' + (bullish_fvg ? "Active FVG" : "No FVG") + '", "session": "' + session_name + '"}'
-    alert(alert_msg_buy, alert.freq_once_per_bar_close)
+// 3. Risk Management: TP & SL Calculation (RR 1:4 with Partial / Full TP)
+entry_price = close
+sl_buy  = m15_low  // Stop loss below 15m structure low
+risk_buy = entry_price - sl_buy
+tp1_buy = entry_price + (risk_buy * 2)   // Partial TP (RR 1:2)
+tp2_buy = entry_price + (risk_buy * 4)   // Full TP (RR 1:4)
 
-if (bearish_choch)
-    alert_msg_sell = '{"symbol": "' + syminfo.ticker + '", "action": "SELL", "entry": "' + str.tostring(close, "#.#####") + '", "trend": "4H Supply Active", "structure": "15m Bearish CHoCH", "ob": "15m Bearish OB", "fvg": "' + (bearish_fvg ? "Active FVG" : "No FVG") + '", "session": "' + session_name + '"}'
-    alert(alert_msg_sell, alert.freq_once_per_bar_close)
+sl_sell = m15_high // Stop loss above 15m structure high
+risk_sell = sl_sell - entry_price
+tp1_sell = entry_price - (risk_sell * 2) // Partial TP (RR 1:2)
+tp2_sell = entry_price - (risk_sell * 4) // Full TP (RR 1:4)
+
+// Plot Cues on Chart
+plotshape(bullish_choch_15m, title="15M Bullish CHoCH", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
+plotshape(bearish_choch_15m, title="15M Bearish CHoCH", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
+
+// 4. Dynamic Webhook Alerts for Bot
+if (bullish_choch_15m and is_bullish_fvg)
+    msg_buy = '{"symbol": "' + syminfo.ticker + '", "action": "BUY", "entry": "' + str.tostring(entry_price, "#.#####") + '", "structure_4h": "4H Demand / LL Reached", "choch_15m": "15M Bullish CHoCH + FVG + OB", "sl": "' + str.tostring(sl_buy, "#.#####") + '", "tp1": "' + str.tostring(tp1_buy, "#.#####") + ' (Partial 1:2)", "tp2": "' + str.tostring(tp2_buy, "#.#####") + ' (Full TP 1:4)", "timestamp": "' + str.tostring(timenow) + '"}'
+    alert(msg_buy, alert.freq_once_per_bar_close)
+
+if (bearish_choch_15m and is_bearish_fvg)
+    msg_sell = '{"symbol": "' + syminfo.ticker + '", "action": "SELL", "entry": "' + str.tostring(entry_price, "#.#####") + '", "structure_4h": "4H Supply / LH Maintained (LL/LH)", "choch_15m": "15M Bearish CHoCH + FVG + OB", "sl": "' + str.tostring(sl_sell, "#.#####") + '", "tp1": "' + str.tostring(tp1_sell, "#.#####") + ' (Partial 1:2)", "tp2": "' + str.tostring(tp2_sell, "#.#####") + ' (Full TP 1:4)", "timestamp": "' + str.tostring(timenow) + '"}'
+    alert(msg_sell, alert.freq_once_per_bar_close)
