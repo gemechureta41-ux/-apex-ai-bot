@@ -1,4 +1,4 @@
-//@version=5
+//@version=6
 indicator("Apex AI SMC Live Engine", overlay=true, max_boxes_count=500, max_lines_count=500)
 
 // Timeframe Settings
@@ -25,7 +25,7 @@ session_name = time_in_session ? "London/NY Active" : "Asian Session"
 plotshape(bullish_choch, title="Bullish CHoCH", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
 plotshape(bearish_choch, title="Bearish CHoCH", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
 
-// 5. Dynamic Webhook Alerts for Apex AI Bot
+// 5. Dynamic Webhook Alerts for Apex AI Bot (Pine Script v6 syntax)
 if (bullish_choch)
     alert_msg_buy = '{"symbol": "' + syminfo.ticker + '", "action": "BUY", "entry": "' + str.tostring(close, "#.#####") + '", "trend": "4H Demand Active", "structure": "15m CHoCH Confirmed", "ob": "15m Bullish OB", "fvg": "' + (bullish_fvg ? "Active FVG" : "No FVG") + '", "session": "' + session_name + '"}'
     alert(alert_msg_buy, alert.freq_once_per_bar_close)
