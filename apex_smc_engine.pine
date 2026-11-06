@@ -1,51 +1,46 @@
 //@version=6
-indicator("Apex AI Advanced SMC Engine", overlay=true, max_boxes_count=500, max_lines_count=500)
+indicator("Apex AI SMC Timeframe Alignment Engine", overlay=true)
 
 // Timeframe Inputs
-tf_h4  = input.timeframe("240", title="Structure Timeframe (4H)")
-tf_entry = input.timeframe("15", title="Entry Timeframe (15M/30M)")
+tf_daily = input.timeframe("D", title="Daily Bias")
+tf_h4    = input.timeframe("240", title="4H Structure")
+tf_m15   = input.timeframe("15", title="15M Entry Setup")
 
-// 1. 4H Market Structure (LH, LL, HH, HL) & Supply/Demand Zones
+// 1. Daily Bias (Close vs Open)
+d_close = request.security(syminfo.tickerid, tf_daily, close)
+d_open  = request.security(syminfo.tickerid, tf_daily, open)
+d_bull  = d_close >= d_open
+
+// 2. 4H Structure (BOS / CHoCH Body Break)
 h4_high = request.security(syminfo.tickerid, tf_h4, ta.highest(high, 10)[1])
 h4_low  = request.security(syminfo.tickerid, tf_h4, ta.lowest(low, 10)[1])
 h4_close = request.security(syminfo.tickerid, tf_h4, close)
 
-// 4H BOS / CHoCH Body Close Detection
-h4_bullish_bos = ta.crossover(h4_close, h4_high)
-h4_bearish_bos = ta.crossunder(h4_close, h4_low)
+h4_bull = h4_close > h4_high
+h4_bear = h4_close < h4_low
 
-// 2. 15M/30M Entry Timeframe CHoCH, FVG & Order Block (OB) Logic
+// 3. 15M Entry Setup (CHoCH + FVG)
 m15_high = ta.highest(high, 5)[1]
 m15_low  = ta.lowest(low, 5)[1]
 
-bullish_choch_15m = ta.crossover(close, m15_high)
-bearish_choch_15m = ta.crossunder(close, m15_low)
+m15_bull = ta.crossover(close, m15_high)
+m15_bear = ta.crossunder(close, m15_low)
 
-// FVG (Fair Value Gap) & Order Block Detection
-is_bullish_fvg = (low > high[2])
-is_bearish_fvg = (high < low[2])
+// Alignment Determination
+tf_aligned_buy  = d_bull and h4_bull and m15_bull
+tf_aligned_sell = (not d_bull) and h4_bear and m15_bear
 
-// 3. Risk Management: TP & SL Calculation (RR 1:4 with Partial / Full TP)
-entry_price = close
-sl_buy  = m15_low  // Stop loss below 15m structure low
-risk_buy = entry_price - sl_buy
-tp1_buy = entry_price + (risk_buy * 2)   // Partial TP (RR 1:2)
-tp2_buy = entry_price + (risk_buy * 4)   // Full TP (RR 1:4)
+alignment_status = tf_aligned_buy ? "FULL BULLISH ALIGNED 📈" : (tf_aligned_sell ? "FULL BEARISH ALIGNED 📉" : "MIXED / UNALIGNED ⚠️")
 
-sl_sell = m15_high // Stop loss above 15m structure high
-risk_sell = sl_sell - entry_price
-tp1_sell = entry_price - (risk_sell * 2) // Partial TP (RR 1:2)
-tp2_sell = entry_price - (risk_sell * 4) // Full TP (RR 1:4)
+// Plot Signal Arrows on Chart
+plotshape(tf_aligned_buy, title="Aligned BUY", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
+plotshape(tf_aligned_sell, title="Aligned SELL", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
 
-// Plot Cues on Chart
-plotshape(bullish_choch_15m, title="15M Bullish CHoCH", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
-plotshape(bearish_choch_15m, title="15M Bearish CHoCH", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
-
-// 4. Dynamic Webhook Alerts for Bot
-if (bullish_choch_15m and is_bullish_fvg)
-    msg_buy = '{"symbol": "' + syminfo.ticker + '", "action": "BUY", "entry": "' + str.tostring(entry_price, "#.#####") + '", "structure_4h": "4H Demand / LL Reached", "choch_15m": "15M Bullish CHoCH + FVG + OB", "sl": "' + str.tostring(sl_buy, "#.#####") + '", "tp1": "' + str.tostring(tp1_buy, "#.#####") + ' (Partial 1:2)", "tp2": "' + str.tostring(tp2_buy, "#.#####") + ' (Full TP 1:4)", "timestamp": "' + str.tostring(timenow) + '"}'
+// Dynamic Webhook Alert
+if (tf_aligned_buy)
+    msg_buy = '{"symbol": "' + syminfo.ticker + '", "action": "BUY", "entry": "' + str.tostring(close, "#.#####") + '", "alignment": "FULL BULLISH ALIGNED", "daily_bias": "BULLISH", "h4_structure": "Bullish BOS", "m15_choch": "15M CHoCH Confirmed", "sl": "' + str.tostring(m15_low, "#.#####") + '", "tp": "' + str.tostring(close + (close - m15_low)*4, "#.#####") + '"}'
     alert(msg_buy, alert.freq_once_per_bar_close)
 
-if (bearish_choch_15m and is_bearish_fvg)
-    msg_sell = '{"symbol": "' + syminfo.ticker + '", "action": "SELL", "entry": "' + str.tostring(entry_price, "#.#####") + '", "structure_4h": "4H Supply / LH Maintained (LL/LH)", "choch_15m": "15M Bearish CHoCH + FVG + OB", "sl": "' + str.tostring(sl_sell, "#.#####") + '", "tp1": "' + str.tostring(tp1_sell, "#.#####") + ' (Partial 1:2)", "tp2": "' + str.tostring(tp2_sell, "#.#####") + ' (Full TP 1:4)", "timestamp": "' + str.tostring(timenow) + '"}'
+if (tf_aligned_sell)
+    msg_sell = '{"symbol": "' + syminfo.ticker + '", "action": "SELL", "entry": "' + str.tostring(close, "#.#####") + '", "alignment": "FULL BEARISH ALIGNED", "daily_bias": "BEARISH", "h4_structure": "Bearish BOS", "m15_choch": "15M CHoCH Confirmed", "sl": "' + str.tostring(m15_high, "#.#####") + '", "tp": "' + str.tostring(close - (m15_high - close)*4, "#.#####") + '"}'
     alert(msg_sell, alert.freq_once_per_bar_close)
