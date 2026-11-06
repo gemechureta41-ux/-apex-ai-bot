@@ -18,7 +18,7 @@ bot.start((ctx) => {
 bot.launch();
 console.log("Apex AI Bot is running...");
 
-// Render port scan akka qabatuuf fi akka hin cufne HTTP Server banuu
+// Create a small HTTP server to satisfy Render's port binding requirement and prevent timeout
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('Apex AI Bot is active and running!\n');
