@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="or">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apex AI Bot - Signal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0e14; color: #ffffff; }
+        .glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); }
+    </style>
+</head>
+<body class="p-4 font-sans select-none pb-24">
+    <div class="max-w-md mx-auto space-y-4">
+        
+        <!-- Header -->
+        <div class="flex justify-between items-center px-1">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-chevron-left text-zinc-400 text-sm"></i>
+                <span class="text-xs text-zinc-300 font-semibold">Apex AI Bot</span>
+            </div>
+            <span class="bg-cyan-500/10 text-cyan-400 text-xs px-2.5 py-0.5 rounded-full border border-cyan-500/30">mini app</span>
+        </div>
+
+        <h1 class="text-2xl font-bold tracking-tight">Signal</h1>
+
+        <!-- Pair & Strategy Selector -->
+        <div class="bg-zinc-900/90 border border-zinc-800/80 p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="flex -space-x-2">
+                    <span class="w-7 h-7 rounded-full bg-cyan-500 flex items-center justify-center text-xs font-bold text-black border border-zinc-900">€</span>
+                    <span class="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center text-xs font-bold text-black border border-zinc-900">$</span>
+                </div>
+                <div>
+                    <div class="text-sm font-bold text-white flex items-center gap-1.5" id="pair-name">
+                        EUR/USD <span class="text-[10px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded">Live</span>
+                    </div>
+                    <div class="text-[11px] text-zinc-400">TradingView · M15 · Apex SMC v2.0</div>
+                </div>
+            </div>
+            <button class="bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 px-3 py-1.5 rounded-xl border border-zinc-700/60 flex items-center gap-1">
+                <span>English</span>
+                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+            </button>
+        </div>
+
+        <!-- Central Analysis Card -->
+        <div id="analysis-card" class="bg-zinc-900/90 border border-zinc-800/80 p-6 rounded-2xl text-center space-y-3 relative overflow-hidden shadow-xl">
+            <div id="status-icon" class="relative flex justify-center items-center my-2">
+                <div class="w-12 h-12 rounded-full border-2 border-cyan-500/20 flex items-center justify-center">
+                    <i class="fa-solid fa-gear text-cyan-400 text-xl animate-spin"></i>
+                </div>
+            </div>
+            
+            <div id="status-title" class="font-bold text-xl text-white">Analyzing...</div>
+            <div id="status-sub" class="text-xs text-zinc-400">Scanning Liquidity & Order Blocks...</div>
+
+            <div id="signal-output" class="hidden space-y-1 pt-2">
+                <div id="signal-action" class="text-3xl font-black">BUY</div>
+                <div id="signal-details" class="text-xs text-zinc-400">Entry: <span id="entry-price" class="text-cyan-400 font-mono">1.08520</span> | R:R 1:3</div>
+            </div>
+        </div>
+
+        <!-- SMC Readings Grid (1 of 8) -->
+        <div class="space-y-2">
+            <div class="flex justify-between items-center text-xs text-zinc-400 px-1">
+                <span>Readings · real market</span>
+                <span class="text-cyan-400 font-mono">1 of 8</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-chart-line text-cyan-400 text-sm"></i>
+                    <div>
+                        <div class="text-zinc-500 text-[10px]">Trend · 4H</div>
+                        <div class="font-semibold text-zinc-200" id="trend-val">Bullish ✓</div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-layer-group text-amber-400 text-sm"></i>
+                    <div>
+                        <div class="text-zinc-500 text-[10px]">Liquidity Target</div>
+                        <div class="font-semibold text-amber-400" id="liq-val">BSL Swept</div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-arrows-up-down text-emerald-400 text-sm"></i>
+                    <div>
+                        <div class="text-zinc-500 text-[10px]">Structure</div>
+                        <div class="font-semibold text-emerald-400" id="structure-val">CHoCH Confirmed</div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-cube text-cyan-400 text-sm"></i>
+                    <div>
+                        <div class="text-zinc-500 text-[10px]">Order Block (OB)</div>
+                        <div class="font-semibold text-zinc-200" id="ob-val">Bullish OB</div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-bolt text-yellow-400 text-sm"></i>
+                    <div>
+                        <div class="text-zinc-500 text-[10px]">Fair Value Gap</div>
+                        <div class="font-semibold text-zinc-200" id="fvg-val">Active FVG</div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex items-center gap-2.5">
+                    <i class="fa-regular fa-clock text-purple-400 text-sm"></i>
+                    <div>
+                        <div class="text-zinc-500 text-[10px]">Session</div>
+                        <div class="font-semibold text-zinc-200" id="session-val">London / NY</div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-wave-square text-blue-400 text-sm"></i>
+                    <div>
+                        <div class="text-zinc-500 text-[10px]">EMA 50/200</div>
+                        <div class="font-semibold text-zinc-200" id="ema-val">Above EMA</div>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900/80 border border-zinc-800/60 p-3 rounded-xl flex items-center gap-2.5">
+                    <i class="fa-solid fa-gauge-simple-high text-rose-400 text-sm"></i>
+                    <div>
+                        <div class="text-zinc-500 text-[10px]">RSI Momentum</div>
+                        <div class="font-semibold text-zinc-200" id="rsi-val">52 (Neutral)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <button onclick="fetchSignalData()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold py-3.5 rounded-2xl transition shadow-lg glow-cyan text-sm tracking-wide">
+            APEX AI ANALYSIS RUN
+        </button>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="fixed bottom-0 left-0 right-0 bg-zinc-950/95 border-t border-zinc-800/80 py-2.5 px-6 flex justify-around items-center backdrop-blur-md">
+        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300">
+            <i class="fa-solid fa-sun text-base"></i>
+            <span class="text-[10px]">Today</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-cyan-400 font-bold">
+            <i class="fa-solid fa-bolt text-base"></i>
+            <span class="text-[10px]">Signal</span>
+        </button>
+        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300">
+            <i class="fa-regular fa-user text-base"></i>
+            <span class="text-[10px]">Profile</span>
+        </button>
+    </div>
+
+    <script>
+        const tg = window.Telegram?.WebApp;
+        if (tg) tg.expand();
+
+        async function fetchSignalData() {
+            const statusTitle = document.getElementById('status-title');
+            const statusSub = document.getElementById('status-sub');
+            const signalOutput = document.getElementById('signal-output');
+
+            statusTitle.innerText = "Analyzing...";
+            statusSub.innerText = "Finding nearest SMC Liquidity & FVG...";
+            signalOutput.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/signal');
+                const data = await response.json();
+
+                setTimeout(() => {
+                    document.getElementById('pair-name').childNodes[0].nodeValue = data.symbol + " ";
+                    document.getElementById('trend-val').innerText = data.trend;
+                    document.getElementById('liq-val').innerText = data.liquidity;
+                    document.getElementById('structure-val').innerText = data.structure;
+                    document.getElementById('ob-val').innerText = data.order_block;
+                    document.getElementById('fvg-val').innerText = data.fvg;
+                    document.getElementById('session-val').innerText = data.session;
+                    document.getElementById('entry-price').innerText = data.entry;
+
+                    statusTitle.innerText = "ANALYSIS COMPLETE";
+                    statusSub.innerText = "Strategy: 4H Direction + 15M Entry Setup";
+                    
+                    const actionElem = document.getElementById('signal-action');
+                    actionElem.innerText = data.action;
+                    if(data.action === "BUY") {
+                        actionElem.className = "text-3xl font-black text-emerald-400 animate-pulse";
+                    } else if(data.action === "SELL") {
+                        actionElem.className = "text-3xl font-black text-rose-500 animate-pulse";
+                    } else {
+                        actionElem.className = "text-2xl font-black text-amber-400";
+                    }
+
+                    signalOutput.classList.remove('hidden');
+                }, 1000);
+
+            } catch (err) {
+                statusTitle.innerText = "AWAITING TRADINGVIEW ALERT";
+                statusSub.innerText = "Connect Webhook URL to TradingView";
+            }
+        }
+
+        setInterval(fetchSignalData, 10000);
+    </script>
+</body>
+</html>
