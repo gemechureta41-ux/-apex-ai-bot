@@ -8,38 +8,12 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { 
-            background-color: #080c14; 
-            color: #f8fafc; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-        }
-        
-        /* Glassmorphism Cards */
-        .glass-card { 
-            background: rgba(15, 23, 42, 0.75); 
-            backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-        }
-
-        /* Neon Glow Accents */
-        .glow-cyan { 
-            box-shadow: 0 0 20px rgba(6, 182, 212, 0.25); 
-            border: 1px solid rgba(6, 182, 212, 0.4);
-        }
-        .glow-gold { 
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.25); 
-            border: 1px solid rgba(245, 158, 11, 0.4);
-        }
-        .glow-green { 
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); 
-            border: 1px solid rgba(16, 185, 129, 0.4);
-        }
-        .glow-red { 
-            box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); 
-            border: 1px solid rgba(244, 63, 94, 0.4);
-        }
-
-        /* Neon Text Effects */
+        body { background-color: #080c14; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.25); border: 1px solid rgba(6, 182, 212, 0.4); }
+        .glow-gold { box-shadow: 0 0 20px rgba(245, 158, 11, 0.25); border: 1px solid rgba(245, 158, 11, 0.4); }
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); border: 1px solid rgba(16, 185, 129, 0.4); }
+        .glow-red { box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); border: 1px solid rgba(244, 63, 94, 0.4); }
         .neon-text-cyan { text-shadow: 0 0 10px rgba(6, 182, 212, 0.6); }
         .neon-text-gold { text-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
         .neon-text-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); }
@@ -62,7 +36,17 @@
             </div>
             <div class="flex items-center gap-2">
                 <span id="market-badge" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                <span id="market-status-text" class="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 glow-green">LIVE MARKET</span>
+                <span id="market-status-text" class="text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 glow-green">LIVE</span>
+            </div>
+        </div>
+
+        <!-- Market Status & Live Dual-Countdown Bar -->
+        <div class="glass-card p-3 rounded-2xl flex justify-between items-center text-xs glow-cyan">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] text-zinc-400 uppercase font-bold">Session Timer:</span>
+            </div>
+            <div id="countdown-container" class="text-cyan-300 font-mono text-[11px] font-black neon-text-cyan">
+                <span id="countdown-timer">Calculating...</span>
             </div>
         </div>
 
@@ -214,6 +198,74 @@
                 console.log("Error fetching data");
             }
         }
+
+        function updateMarketStatus(symbol) {
+            const now = new Date();
+            const day = now.getUTCDay();
+            const hour = now.getUTCHours();
+
+            const isCrypto = symbol.includes("BTC") || symbol.includes("ETH");
+            const badge = document.getElementById('market-badge');
+            const statusText = document.getElementById('market-status-text');
+            const timerText = document.getElementById('countdown-timer');
+
+            if (isCrypto) {
+                badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+                statusText.innerText = "CRYPTO 24/7";
+                timerText.innerText = "Market Open (24/7)";
+                return;
+            }
+
+            const isClosed = (day === 5 && hour >= 22) || day === 6 || (day === 0 && hour < 22);
+
+            if (isClosed) {
+                badge.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
+                statusText.innerText = "CLOSED";
+                statusText.className = "text-[10px] font-extrabold text-rose-400 bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/30 glow-red";
+
+                let targetSunday = new Date(now);
+                let daysUntilSunday = (7 - day) % 7;
+                if (daysUntilSunday === 0 && hour >= 22) daysUntilSunday = 7;
+                targetSunday.setUTCDate(now.getUTCDate() + daysUntilSunday);
+                targetSunday.setUTCHours(22, 0, 0, 0);
+
+                const diffClose = targetSunday - now;
+                const daysLeft = Math.floor(diffClose / (1000 * 60 * 60 * 24));
+                const hoursLeft = Math.floor((diffClose % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minsLeft = Math.floor((diffClose % (1000 * 60 * 60)) / (1000 * 60));
+                const secsLeft = Math.floor((diffClose % (1000 * 60)) / 1000);
+
+                let str = "Opens in: ";
+                if (daysLeft > 0) str += `${daysLeft}d `;
+                str += `${hoursLeft}h ${minsLeft}m ${secsLeft}s`;
+                timerText.innerText = str;
+            } else {
+                badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
+                statusText.innerText = "LIVE";
+                statusText.className = "text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 glow-green";
+
+                let targetFriday = new Date(now);
+                let daysUntilFriday = (5 - day + 7) % 7;
+                targetFriday.setUTCDate(now.getUTCDate() + daysUntilFriday);
+                targetFriday.setUTCHours(22, 0, 0, 0);
+
+                const diffOpen = targetFriday - now;
+                const daysLeft = Math.floor(diffOpen / (1000 * 60 * 60 * 24));
+                const hoursLeft = Math.floor((diffOpen % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minsLeft = Math.floor((diffOpen % (1000 * 60 * 60)) / (1000 * 60));
+                const secsLeft = Math.floor((diffOpen % (1000 * 60)) / 1000);
+
+                let str = "Closes in: ";
+                if (daysLeft > 0) str += `${daysLeft}d `;
+                str += `${hoursLeft}h ${minsLeft}m ${secsLeft}s`;
+                timerText.innerText = str;
+            }
+        }
+
+        setInterval(() => {
+            const selectedAsset = document.getElementById('asset-select').value;
+            updateMarketStatus(selectedAsset);
+        }, 1000);
 
         setInterval(fetchSMCData, 5000);
         fetchSMCData();
