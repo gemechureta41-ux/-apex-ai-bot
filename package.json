@@ -1,0 +1,12 @@
+{
+  "name": "apex-ai-bot",
+  "version": "1.0.0",
+  "description": "Apex AI Trading Bot and Real Market Mini App",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "telegraf": "^4.16.3"
+  }
+}
