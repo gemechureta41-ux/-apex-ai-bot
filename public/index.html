@@ -40,120 +40,188 @@
             </div>
         </div>
 
-        <!-- Market Status & Live Dual-Countdown Bar -->
-        <div class="glass-card p-3 rounded-2xl flex justify-between items-center text-xs glow-cyan">
-            <div class="flex items-center gap-2">
-                <span class="text-[10px] text-zinc-400 uppercase font-bold">Session Timer:</span>
+        <!-- TAB 1: SIGNAL AI (MAIN VIEW) -->
+        <div id="tab-signal" class="tab-content space-y-4">
+            <!-- Market Status & Live Dual-Countdown Bar -->
+            <div class="glass-card p-3 rounded-2xl flex justify-between items-center text-xs glow-cyan">
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-zinc-400 uppercase font-bold">Session Timer:</span>
+                </div>
+                <div id="countdown-container" class="text-cyan-300 font-mono text-[11px] font-black neon-text-cyan">
+                    <span id="countdown-timer">Calculating...</span>
+                </div>
             </div>
-            <div id="countdown-container" class="text-cyan-300 font-mono text-[11px] font-black neon-text-cyan">
-                <span id="countdown-timer">Calculating...</span>
+
+            <!-- Asset Selector Card -->
+            <div class="glass-card p-4 rounded-2xl shadow-xl flex justify-between items-center glow-cyan">
+                <div>
+                    <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider neon-text-gold">Selected Asset</div>
+                    <div class="text-sm font-black text-white mt-0.5 flex items-center gap-1.5" id="selected-symbol-label">
+                        EUR/USD <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-mono border border-cyan-500/30">Forex Major</span>
+                    </div>
+                </div>
+                <select id="asset-select" onchange="fetchSMCData()" class="bg-slate-900 text-cyan-300 font-black text-xs px-3.5 py-2.5 rounded-xl border border-cyan-500/40 focus:outline-none focus:border-amber-400 shadow-inner">
+                    <optgroup label="Forex Major Pairs" class="bg-slate-900 text-white">
+                        <option value="EURUSD">EUR/USD</option>
+                        <option value="GBPUSD">GBP/USD</option>
+                    </optgroup>
+                    <optgroup label="Commodities & Indices" class="bg-slate-900 text-white">
+                        <option value="XAUUSD">GOLD (XAU/USD)</option>
+                        <option value="NAS100">NASDAQ (NAS100)</option>
+                        <option value="US30">DOW JONES (US30)</option>
+                        <option value="DXY">DOLLAR INDEX (DXY)</option>
+                    </optgroup>
+                    <optgroup label="Crypto 24/7" class="bg-slate-900 text-white">
+                        <option value="BTCUSD">BITCOIN (BTC/USD)</option>
+                        <option value="ETHUSD">ETHEREUM (ETH/USD)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- Timeframe Alignment Card -->
+            <div class="glass-card p-5 rounded-2xl text-center space-y-2 glow-cyan relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="text-[10px] text-zinc-400 font-extrabold tracking-widest uppercase">Multi-Timeframe Alignment</div>
+                <div id="alignment-val" class="text-xl font-black text-cyan-400 tracking-tight neon-text-cyan">FULL BULLISH ALIGNED 📈</div>
+                <div class="text-[11px] text-zinc-400 font-medium">Daily Bias + 4H Structure + 15M CHoCH Verified</div>
+            </div>
+
+            <!-- Main Signal Output Card -->
+            <div id="signal-card-box" class="glass-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden">
+                <div class="absolute -left-6 -bottom-6 w-24 h-24 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="text-xs text-amber-400 font-extrabold uppercase tracking-widest neon-text-gold">Institutional Signal Output</div>
+                <div id="signal-action" class="text-4xl font-black text-amber-400 tracking-wider neon-text-gold">MONITORING</div>
+                <div class="text-xs text-zinc-200 bg-slate-900/80 py-2 px-4 rounded-xl inline-block border border-amber-500/30">
+                    Execution Price: <span id="entry-price" class="text-amber-400 font-mono font-black text-base neon-text-gold">---</span>
+                </div>
+            </div>
+
+            <!-- Risk Management Targets (SL & TP 1:4) -->
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="glass-card p-4 rounded-2xl glow-red">
+                    <div class="text-rose-400 text-[10px] font-black flex items-center gap-1.5 uppercase tracking-wider">
+                        <i class="fa-solid fa-shield-halved text-rose-500 text-sm"></i> STOP LOSS (SL)
+                    </div>
+                    <div class="font-black text-rose-400 font-mono mt-2 text-base neon-text-red" id="sl-val">---</div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl glow-green">
+                    <div class="text-emerald-400 text-[10px] font-black flex items-center gap-1.5 uppercase tracking-wider">
+                        <i class="fa-solid fa-bullseye text-emerald-400 text-sm"></i> FULL TARGET (RR 1:4)
+                    </div>
+                    <div class="font-black text-emerald-400 font-mono mt-2 text-base neon-text-green" id="tp-val">---</div>
+                </div>
+            </div>
+
+            <!-- SMC Timeframe Breakdown -->
+            <div class="glass-card p-4.5 rounded-2xl space-y-3 border-cyan-500/20">
+                <div class="flex justify-between items-center text-xs border-b border-slate-800 pb-2.5 px-1">
+                    <span class="text-zinc-300 font-extrabold uppercase tracking-wider text-[11px]">SMC Structure Breakdown</span>
+                    <span class="text-cyan-400 font-mono text-[10px] font-bold neon-text-cyan">Real Sync</span>
+                </div>
+
+                <div class="space-y-2 text-xs">
+                    <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                        <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-calendar-day text-amber-400"></i> Daily Bias:</span>
+                        <span class="font-black text-amber-400 font-mono text-xs neon-text-gold" id="daily-bias-val">BULLISH</span>
+                    </div>
+                    <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                        <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-chart-line text-cyan-400"></i> 4H Structure (HH/HL):</span>
+                        <span class="font-black text-cyan-400 font-mono text-xs neon-text-cyan" id="h4-val">Bullish BOS</span>
+                    </div>
+                    <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                        <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-bolt text-emerald-400"></i> 15M CHoCH + FVG:</span>
+                        <span class="font-black text-emerald-400 font-mono text-xs neon-text-green" id="m15-val">Waiting Setup</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Refresh Button -->
+            <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-cyan-400 via-teal-400 to-amber-400 hover:opacity-95 text-black font-black py-4 rounded-2xl transition shadow-lg shadow-cyan-500/20 text-xs tracking-widest uppercase flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate text-sm"></i> Refresh Live SMC Market Data
+            </button>
+        </div>
+
+        <!-- TAB 2: OVERVIEW -->
+        <div id="tab-overview" class="tab-content hidden space-y-4">
+            <div class="glass-card p-5 rounded-2xl glow-cyan space-y-3">
+                <div class="text-xs text-cyan-400 font-black uppercase tracking-wider neon-text-cyan">Market Overview & Analytics</div>
+                <p class="text-xs text-zinc-300 leading-relaxed">
+                    Apex AI Bot gabaa Forex, Crypto, Indices, fi Commodities sa'aatii 24/7 hordofuun SMC (Smart Money Concepts) Multi-Timeframe Alignment dhiyeessa.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <div class="text-zinc-400 text-[10px]">Active Pairs</div>
+                    <div class="text-lg font-black text-cyan-400 mt-1 font-mono">8 Assets</div>
+                </div>
+                <div class="glass-card p-4 rounded-2xl text-center">
+                    <div class="text-zinc-400 text-[10px]">Strategy RR</div>
+                    <div class="text-lg font-black text-emerald-400 mt-1 font-mono">1:4 Strict</div>
+                </div>
             </div>
         </div>
 
-        <!-- Asset Selector Card -->
-        <div class="glass-card p-4 rounded-2xl shadow-xl flex justify-between items-center glow-cyan">
-            <div>
-                <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider neon-text-gold">Selected Asset</div>
-                <div class="text-sm font-black text-white mt-0.5 flex items-center gap-1.5" id="selected-symbol-label">
-                    EUR/USD <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-mono border border-cyan-500/30">Forex Major</span>
+        <!-- TAB 3: HISTORY -->
+        <div id="tab-history" class="tab-content hidden space-y-3">
+            <div class="text-xs font-black text-amber-400 uppercase tracking-widest px-1 neon-text-gold">Recent Signal Alerts</div>
+            
+            <div class="glass-card p-4 rounded-2xl flex justify-between items-center border-emerald-500/30">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">BUY</div>
+                    <div>
+                        <div class="text-xs font-bold text-white">EUR/USD · 1:4 Target</div>
+                        <div class="text-[10px] text-zinc-400">Entry: 1.08520 · Full TP Hit</div>
+                    </div>
                 </div>
+                <span class="text-[10px] text-emerald-400 font-mono font-bold">+4.0 RR</span>
             </div>
-            <select id="asset-select" onchange="fetchSMCData()" class="bg-slate-900 text-cyan-300 font-black text-xs px-3.5 py-2.5 rounded-xl border border-cyan-500/40 focus:outline-none focus:border-amber-400 shadow-inner">
-                <optgroup label="Forex Major Pairs" class="bg-slate-900 text-white">
-                    <option value="EURUSD">EUR/USD</option>
-                    <option value="GBPUSD">GBP/USD</option>
-                </optgroup>
-                <optgroup label="Commodities & Indices" class="bg-slate-900 text-white">
-                    <option value="XAUUSD">GOLD (XAU/USD)</option>
-                    <option value="NAS100">NASDAQ (NAS100)</option>
-                    <option value="US30">DOW JONES (US30)</option>
-                    <option value="DXY">DOLLAR INDEX (DXY)</option>
-                </optgroup>
-                <optgroup label="Crypto 24/7" class="bg-slate-900 text-white">
-                    <option value="BTCUSD">BITCOIN (BTC/USD)</option>
-                    <option value="ETHUSD">ETHEREUM (ETH/USD)</option>
-                </optgroup>
-            </select>
-        </div>
 
-        <!-- Timeframe Alignment Card -->
-        <div class="glass-card p-5 rounded-2xl text-center space-y-2 glow-cyan relative overflow-hidden">
-            <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="text-[10px] text-zinc-400 font-extrabold tracking-widest uppercase">Multi-Timeframe Alignment</div>
-            <div id="alignment-val" class="text-xl font-black text-cyan-400 tracking-tight neon-text-cyan">FULL BULLISH ALIGNED 📈</div>
-            <div class="text-[11px] text-zinc-400 font-medium">Daily Bias + 4H Structure + 15M CHoCH Verified</div>
-        </div>
-
-        <!-- Main Signal Output Card -->
-        <div id="signal-card-box" class="glass-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden">
-            <div class="absolute -left-6 -bottom-6 w-24 h-24 bg-amber-500/20 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="text-xs text-amber-400 font-extrabold uppercase tracking-widest neon-text-gold">Institutional Signal Output</div>
-            <div id="signal-action" class="text-4xl font-black text-amber-400 tracking-wider neon-text-gold">MONITORING</div>
-            <div class="text-xs text-zinc-200 bg-slate-900/80 py-2 px-4 rounded-xl inline-block border border-amber-500/30">
-                Execution Price: <span id="entry-price" class="text-amber-400 font-mono font-black text-base neon-text-gold">---</span>
+            <div class="glass-card p-4 rounded-2xl flex justify-between items-center border-rose-500/30">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold">SELL</div>
+                    <div>
+                        <div class="text-xs font-bold text-white">GOLD (XAU/USD)</div>
+                        <div class="text-[10px] text-zinc-400">Entry: 2742.10 · Closed TP1</div>
+                    </div>
+                </div>
+                <span class="text-[10px] text-amber-400 font-mono font-bold">+2.0 RR</span>
             </div>
         </div>
 
-        <!-- Risk Management Targets (SL & TP 1:4) -->
-        <div class="grid grid-cols-2 gap-3 text-xs">
-            <div class="glass-card p-4 rounded-2xl glow-red">
-                <div class="text-rose-400 text-[10px] font-black flex items-center gap-1.5 uppercase tracking-wider">
-                    <i class="fa-solid fa-shield-halved text-rose-500 text-sm"></i> STOP LOSS (SL)
+        <!-- TAB 4: PROFILE -->
+        <div id="tab-profile" class="tab-content hidden space-y-4">
+            <div class="glass-card p-5 rounded-2xl text-center space-y-3 glow-gold">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-500 to-amber-400 mx-auto flex items-center justify-center text-black text-2xl font-black shadow-lg">
+                    <i class="fa-solid fa-user-astronaut"></i>
                 </div>
-                <div class="font-black text-rose-400 font-mono mt-2 text-base neon-text-red" id="sl-val">---</div>
-            </div>
-            <div class="glass-card p-4 rounded-2xl glow-green">
-                <div class="text-emerald-400 text-[10px] font-black flex items-center gap-1.5 uppercase tracking-wider">
-                    <i class="fa-solid fa-bullseye text-emerald-400 text-sm"></i> FULL TARGET (RR 1:4)
+                <div>
+                    <div class="text-sm font-black text-white" id="user-name">Apex Trader</div>
+                    <div class="text-[11px] text-cyan-400 font-mono" id="user-id">ID: @trader</div>
                 </div>
-                <div class="font-black text-emerald-400 font-mono mt-2 text-base neon-text-green" id="tp-val">---</div>
-            </div>
-        </div>
-
-        <!-- SMC Timeframe Breakdown -->
-        <div class="glass-card p-4.5 rounded-2xl space-y-3 border-cyan-500/20">
-            <div class="flex justify-between items-center text-xs border-b border-slate-800 pb-2.5 px-1">
-                <span class="text-zinc-300 font-extrabold uppercase tracking-wider text-[11px]">SMC Structure Breakdown</span>
-                <span class="text-cyan-400 font-mono text-[10px] font-bold neon-text-cyan">Real Sync</span>
-            </div>
-
-            <div class="space-y-2 text-xs">
-                <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-calendar-day text-amber-400"></i> Daily Bias:</span>
-                    <span class="font-black text-amber-400 font-mono text-xs neon-text-gold" id="daily-bias-val">BULLISH</span>
-                </div>
-                <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-chart-line text-cyan-400"></i> 4H Structure (HH/HL):</span>
-                    <span class="font-black text-cyan-400 font-mono text-xs neon-text-cyan" id="h4-val">Bullish BOS</span>
-                </div>
-                <div class="bg-slate-900/70 border border-slate-800 p-3 rounded-xl flex justify-between items-center">
-                    <span class="text-zinc-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-bolt text-emerald-400"></i> 15M CHoCH + FVG:</span>
-                    <span class="font-black text-emerald-400 font-mono text-xs neon-text-green" id="m15-val">Waiting Setup</span>
+                <div class="text-xs bg-emerald-500/10 text-emerald-400 py-1.5 px-3 rounded-full border border-emerald-500/30 inline-block font-bold">
+                    PRO Plan Active
                 </div>
             </div>
         </div>
 
-        <!-- Refresh Button -->
-        <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-cyan-400 via-teal-400 to-amber-400 hover:opacity-95 text-black font-black py-4 rounded-2xl transition shadow-lg shadow-cyan-500/20 text-xs tracking-widest uppercase flex items-center justify-center gap-2">
-            <i class="fa-solid fa-rotate text-sm"></i> Refresh Live SMC Market Data
-        </button>
     </div>
 
     <!-- Bottom Navigation Bar -->
     <div class="fixed bottom-0 left-0 right-0 glass-card border-t border-slate-800 py-3.5 px-6 flex justify-around items-center backdrop-blur-xl z-50">
-        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
+        <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
             <i class="fa-solid fa-chart-pie text-base"></i>
             <span class="text-[10px] font-bold">Overview</span>
         </button>
-        <button class="flex flex-col items-center gap-1 text-cyan-400 font-extrabold neon-text-cyan">
+        <button onclick="switchTab('signal')" id="nav-signal" class="nav-btn flex flex-col items-center gap-1 text-cyan-400 font-extrabold neon-text-cyan">
             <i class="fa-solid fa-bolt text-base"></i>
             <span class="text-[10px]">Signal AI</span>
         </button>
-        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
+        <button onclick="switchTab('history')" id="nav-history" class="nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
             <i class="fa-solid fa-clock-rotate-left text-base"></i>
             <span class="text-[10px] font-bold">History</span>
         </button>
-        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
+        <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition">
             <i class="fa-regular fa-user text-base"></i>
             <span class="text-[10px] font-bold">Profile</span>
         </button>
@@ -161,7 +229,25 @@
 
     <script>
         const tg = window.Telegram?.WebApp;
-        if (tg) tg.expand();
+        if (tg) {
+            tg.expand();
+            if (tg.initDataUnsafe?.user) {
+                document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name || "Apex Trader";
+                document.getElementById('user-id').innerText = "@" + (tg.initDataUnsafe.user.username || "trader");
+            }
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400 transition";
+            });
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            activeBtn.className = "nav-btn flex flex-col items-center gap-1 text-cyan-400 font-extrabold neon-text-cyan";
+        }
 
         async function fetchSMCData() {
             const selectElem = document.getElementById('asset-select');
