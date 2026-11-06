@@ -1,5 +1,7 @@
 const { Telegraf, Markup } = require('telegraf');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
@@ -18,10 +20,19 @@ bot.start((ctx) => {
 bot.launch();
 console.log("Apex AI Bot is running...");
 
-// Create a small HTTP server to satisfy Render's port binding requirement and prevent timeout
+// HTTP Server isa index.html dubbisee Mini App agarsiisu
 const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Apex AI Bot is active and running!\n');
+    const filePath = path.join(__dirname, 'index.html');
+    
+    fs.readFile(filePath, (err, content) => {
+        if (err) {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Not Found');
+        } else {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(content, 'utf-8');
+        }
+    });
 });
 
 const PORT = process.env.PORT || 3000;
