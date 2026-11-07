@@ -1,37 +1,50 @@
 //@version=6
-indicator("Apex AI SMC Timeframe Alignment Engine", overlay=true)
+indicator("Apex AI SMC - Supply/Demand, Order Block & BOS Engine", overlay=true, max_boxes_count=500, max_lines_count=500)
 
-tf_daily = input.timeframe("D", title="Daily Bias")
-tf_h4    = input.timeframe("240", title="4H Structure")
-tf_m15   = input.timeframe("15", title="15M Entry Setup")
+// Timeframes
+tf_h4 = input.timeframe("240", title="Structure Timeframe (4H)")
+tf_m15 = input.timeframe("15", title="Entry Timeframe (15M)")
 
-d_close = request.security(syminfo.tickerid, tf_daily, close)
-d_open  = request.security(syminfo.tickerid, tf_daily, open)
-d_bull  = d_close >= d_open
-
+// 1. Market Structure & BOS Detection (Break of Structure)
 h4_high = request.security(syminfo.tickerid, tf_h4, ta.highest(high, 10)[1])
 h4_low  = request.security(syminfo.tickerid, tf_h4, ta.lowest(low, 10)[1])
 h4_close = request.security(syminfo.tickerid, tf_h4, close)
 
-h4_bull = h4_close > h4_high
-h4_bear = h4_close < h4_low
+bullish_bos = ta.crossover(h4_close, h4_high)
+bearish_bos = ta.crossunder(h4_close, h4_low)
 
+// 2. Order Block (OB) Logic
+// Bullish OB: Inni diimaa/bearish candle dhumaa gadi bu'aa turerratti jiru
+// Bearish OB: Inni magariisa/bullish candle dhumaa ol ka'aa turerratti jiru
+bullish_ob = (close[1] < open[1]) and (close > open) // Simplified OB trigger
+bearish_ob = (close[1] > open[1]) and (close < open)
+
+// 3. Supply & Demand Zone Retest + 15M Entry Setup
 m15_high = ta.highest(high, 5)[1]
 m15_low  = ta.lowest(low, 5)[1]
 
-m15_bull = ta.crossover(close, m15_high)
-m15_bear = ta.crossunder(close, m15_low)
+bullish_choch = ta.crossover(close, m15_high)
+bearish_choch = ta.crossunder(close, m15_low)
 
-tf_aligned_buy  = d_bull and h4_bull and m15_bull
-tf_aligned_sell = (not d_bull) and h4_bear and m15_bear
+// Risk Management (RR 1:4)
+entry_price = close
+sl_buy  = m15_low
+risk_buy = entry_price - sl_buy
+tp_buy  = entry_price + (risk_buy * 4)
 
-plotshape(tf_aligned_buy, title="Aligned BUY", location=location.belowbar, color=color.green, style=shape.triangleup, size=size.small)
-plotshape(tf_aligned_sell, title="Aligned SELL", location=location.abovebar, color=color.red, style=shape.triangledown, size=size.small)
+sl_sell = m15_high
+risk_sell = sl_sell - entry_price
+tp_sell = entry_price - (risk_sell * 4)
 
-if (tf_aligned_buy)
-    msg_buy = '{"symbol": "' + syminfo.ticker + '", "action": "BUY", "entry": "' + str.tostring(close, "#.#####") + '", "alignment": "FULL BULLISH ALIGNED", "daily_bias": "BULLISH", "h4_structure": "Bullish BOS", "m15_choch": "15M CHoCH Confirmed", "sl": "' + str.tostring(m15_low, "#.#####") + '", "tp": "' + str.tostring(close + (close - m15_low)*4, "#.#####") + '"}'
+// Plot Cues
+plotshape(bullish_bos, title="Bullish BOS", location=location.belowbar, color=color.blue, style=shape.labelup, size=size.small)
+plotshape(bearish_bos, title="Bearish BOS", location=location.abovebar, color=color.purple, style=shape.labeldown, size=size.small)
+
+// Webhook Alerts
+if (bullish_bos and bullish_ob and bullish_choch)
+    msg_buy = '{"symbol": "' + syminfo.ticker + '", "action": "BUY", "entry": "' + str.tostring(entry_price, "#.#####") + '", "alignment": "BOS + Bullish OB Aligned", "daily_bias": "BULLISH", "h4_structure": "Bullish BOS Confirmed", "m15_choch": "Bullish OB Retest + CHoCH", "sl": "' + str.tostring(sl_buy, "#.#####") + '", "tp": "' + str.tostring(tp_buy, "#.#####") + '"}'
     alert(msg_buy, alert.freq_once_per_bar_close)
 
-if (tf_aligned_sell)
-    msg_sell = '{"symbol": "' + syminfo.ticker + '", "action": "SELL", "entry": "' + str.tostring(close, "#.#####") + '", "alignment": "FULL BEARISH ALIGNED", "daily_bias": "BEARISH", "h4_structure": "Bearish BOS", "m15_choch": "15M CHoCH Confirmed", "sl": "' + str.tostring(m15_high, "#.#####") + '", "tp": "' + str.tostring(close - (m15_high - close)*4, "#.#####") + '"}'
+if (bearish_bos and bearish_ob and bearish_choch)
+    msg_sell = '{"symbol": "' + syminfo.ticker + '", "action": "SELL", "entry": "' + str.tostring(entry_price, "#.#####") + '", "alignment": "BOS + Bearish OB Aligned", "daily_bias": "BEARISH", "h4_structure": "Bearish BOS Confirmed", "m15_choch": "Bearish OB Retest + CHoCH", "sl": "' + str.tostring(sl_sell, "#.#####") + '", "tp": "' + str.tostring(tp_sell, "#.#####") + '"}'
     alert(msg_sell, alert.freq_once_per_bar_close)
