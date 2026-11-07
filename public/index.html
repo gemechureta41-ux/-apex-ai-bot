@@ -34,7 +34,7 @@
                 </div>
                 <div>
                     <div class="text-xs font-black text-white tracking-widest uppercase">APEX AI MASTER</div>
-                    <div class="text-[10px] neon-cyan font-mono font-semibold">Global Pro SMC Engine</div>
+                    <div class="text-[10px] neon-cyan font-mono font-semibold">Global Pro SMC & Price Action Engine</div>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -67,9 +67,9 @@
 
             <!-- BOS & Order Block Status Card -->
             <div class="obsidian-card p-5 rounded-2xl text-center space-y-2 glow-cyan relative overflow-hidden">
-                <div class="text-[10px] text-slate-400 font-extrabold tracking-widest uppercase">BOS & Order Block Status</div>
-                <div id="alignment-val" class="text-lg font-black neon-cyan tracking-tight">Scanning BOS & OB...</div>
-                <div class="text-[11px] text-slate-400 font-medium">Supply/Demand Zone Retest Verified</div>
+                <div class="text-[10px] text-slate-400 font-extrabold tracking-widest uppercase">Top-Down BOS & OB Status</div>
+                <div id="alignment-val" class="text-lg font-black neon-cyan tracking-tight">Scanning HTF Structure...</div>
+                <div class="text-[11px] text-slate-400 font-medium">Liquidity Sweep & FVG Retest Verified</div>
             </div>
 
             <!-- Main Signal Output -->
@@ -97,45 +97,51 @@
                 </div>
             </div>
 
-            <!-- SMC Breakdown -->
+            <!-- SMC Top-Down Breakdown -->
             <div class="obsidian-card p-4.5 rounded-2xl space-y-3 border-cyan-500/20">
                 <div class="text-slate-300 font-extrabold uppercase tracking-wider text-[11px] border-b border-slate-800 pb-2">
-                    SMC Structure & OB Breakdown
+                    Top-Down Analysis (D1->H4->H1->M15->M5)
                 </div>
                 <div class="space-y-2 text-xs">
                     <div class="bg-[#040609]/70 p-3 rounded-xl flex justify-between items-center border border-slate-800/60">
-                        <span class="text-slate-400 font-semibold">Daily Bias:</span>
+                        <span class="text-slate-400 font-semibold">Daily Bias (D1):</span>
                         <span class="font-black inst-gold font-mono text-xs" id="daily-bias-val">NEUTRAL</span>
                     </div>
                     <div class="bg-[#040609]/70 p-3 rounded-xl flex justify-between items-center border border-slate-800/60">
-                        <span class="text-slate-400 font-semibold">4H BOS Status:</span>
+                        <span class="text-slate-400 font-semibold">H4 Key Levels / BOS:</span>
                         <span class="font-black neon-cyan font-mono text-xs" id="h4-val">Waiting BOS</span>
                     </div>
                     <div class="bg-[#040609]/70 p-3 rounded-xl flex justify-between items-center border border-slate-800/60">
-                        <span class="text-slate-400 font-semibold">15M OB Retest:</span>
-                        <span class="font-black neon-green font-mono text-xs" id="m15-val">Scanning Zone</span>
+                        <span class="text-slate-400 font-semibold">M15 CHoCH / Confirmation:</span>
+                        <span class="font-black neon-green font-mono text-xs" id="m15-val">Scanning CHoCH</span>
+                    </div>
+                    <div class="bg-[#040609]/70 p-3 rounded-xl flex justify-between items-center border border-slate-800/60">
+                        <span class="text-slate-400 font-semibold">Order Block + FVG:</span>
+                        <span class="font-black text-amber-400 font-mono text-xs" id="ob-fvg-val">Waiting Retest</span>
                     </div>
                 </div>
             </div>
 
             <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-cyan-400 via-teal-500 to-amber-500 text-black font-black py-4 rounded-2xl shadow-xl shadow-cyan-500/20 text-xs tracking-widest uppercase transition transform active:scale-95">
-                Refresh Live Market Data
+                Refresh Institutional Data
             </button>
         </div>
 
         <!-- TAB 2: OVERVIEW -->
         <div id="tab-overview" class="tab-content hidden space-y-4">
             <div class="obsidian-card p-5 rounded-2xl glow-cyan space-y-3">
-                <div class="text-xs neon-cyan font-black uppercase tracking-wider">Global Pro SMC Engine</div>
+                <div class="text-xs neon-cyan font-black uppercase tracking-wider">Top-Down SMC Strategy Blueprint</div>
                 <p class="text-xs text-slate-300 leading-relaxed">
-                    Apex AI Master is engineered for high-precision institutional trading. Utilizing multi-timeframe Break of Structure (BOS), Order Block validation, and strict London/New York session filtering, it delivers high winrate setups with a 1:4 Risk-to-Reward ratio.
+                    1. <b>D1 / H4:</b> Identify market direction, trend (HH/HL or LH/LL), and key support/resistance zones.<br>
+                    2. <b>H1 / M15:</b> Mark liquidity zones, wait for CHoCH (Change of Character) and BOS (Break of Structure).<br>
+                    3. <b>M15 / M5:</b> Refine entry using Order Blocks (OB) and Fair Value Gaps (FVG) with strict 1:4 Risk-to-Reward ratio.
                 </p>
             </div>
         </div>
 
         <!-- TAB 3: HISTORY -->
         <div id="tab-history" class="tab-content hidden space-y-3">
-            <div class="text-xs font-black inst-gold uppercase tracking-widest px-1">Live Signal History Log</div>
+            <div class="text-xs font-black inst-gold uppercase tracking-widest px-1">Institutional Signal History Log</div>
             <div id="history-container" class="space-y-2">
                 <div class="obsidian-card p-4 rounded-2xl text-center text-slate-400 text-xs">
                     No live signals recorded yet. Waiting for TradingView Webhook...
@@ -152,7 +158,7 @@
                 <div class="text-sm font-black text-white" id="user-name">GM FX</div>
                 <div class="text-[11px] neon-cyan font-mono" id="user-id">@apexforexsupport</div>
                 <div class="text-xs bg-emerald-500/15 text-emerald-400 py-1.5 px-3 rounded-full border border-emerald-500/30 inline-block font-bold">
-                    PRO Master Active
+                    PRO Master Active (70%+ Winrate)
                 </div>
             </div>
         </div>
@@ -259,6 +265,7 @@
                 document.getElementById('daily-bias-val').innerText = data.daily_bias;
                 document.getElementById('h4-val').innerText = data.h4_structure;
                 document.getElementById('m15-val').innerText = data.m15_choch;
+                document.getElementById('ob-fvg-val').innerText = data.ob_fvg;
                 
                 const actionElem = document.getElementById('signal-action');
                 const signalBox = document.getElementById('signal-card-box');
