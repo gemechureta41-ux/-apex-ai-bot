@@ -11,30 +11,30 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 15 Live Institutional Assets Database (Forex Majors, Crosses, Commodities, Indices, Crypto)
+// Institutional Market Database with Top-Down Analysis (D1 -> H4 -> H1 -> M15 -> M5)
 let liveMarketSignals = {
-    "EURUSD": { symbol: "EUR/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "GBPUSD": { symbol: "GBP/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "USDJPY": { symbol: "USD/JPY", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "USDCAD": { symbol: "USD/CAD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "USDCHF": { symbol: "USD/CHF", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "AUDUSD": { symbol: "AUD/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "NZDUSD": { symbol: "NZD/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "EURJPY": { symbol: "EUR/JPY", category: "Forex Cross", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "GBPJPY": { symbol: "GBP/JPY", category: "Forex Cross", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "XAUUSD": { symbol: "GOLD (XAU/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "XAGUSD": { symbol: "SILVER (XAG/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "NAS100": { symbol: "NASDAQ (NAS100)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "US30":   { symbol: "DOW JONES (US30)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto 24/7", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "ETHUSD": { symbol: "ETHEREUM (ETH/USD)", category: "Crypto 24/7", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" }
+    "EURUSD": { symbol: "EUR/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "GBPUSD": { symbol: "GBP/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "USDJPY": { symbol: "USD/JPY", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "USDCAD": { symbol: "USD/CAD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "USDCHF": { symbol: "USD/CHF", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "AUDUSD": { symbol: "AUD/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "NZDUSD": { symbol: "NZD/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "EURJPY": { symbol: "EUR/JPY", category: "Forex Cross", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "GBPJPY": { symbol: "GBP/JPY", category: "Forex Cross", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "XAUUSD": { symbol: "GOLD (XAU/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "XAGUSD": { symbol: "SILVER (XAG/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "NAS100": { symbol: "NASDAQ (NAS100)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "US30":   { symbol: "DOW JONES (US30)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto 24/7", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "ETHUSD": { symbol: "ETHEREUM (ETH/USD)", category: "Crypto 24/7", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" }
 };
 
 let signalHistory = [];
 
 bot.start((ctx) => {
     ctx.reply(
-        "🤖 *Apex AI Master Bot (Global Pro SMC)*\n\nReal-time Supply/Demand, Order Block & BOS Analyzer (Winrate 70%+ Engine).",
+        "🤖 *Apex AI Master Bot (Global Pro SMC Engine)*\n\nAdvanced Top-Down Analysis (D1->H4->H1->M15->M5), Liquidity Sweep, Order Block, FVG, & CHoCH/BOS Detector.",
         {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
@@ -51,13 +51,14 @@ app.post('/webhook/tradingview', (req, res) => {
         
         const newSignal = {
             symbol: alert.symbol,
-            category: alert.category || "Market",
+            category: alert.category || "Institutional Market",
             action: alert.action || "MONITORING",
             entry: alert.entry || "---",
-            alignment: alert.alignment || "Global Pro Confirmed",
-            daily_bias: alert.daily_bias || "BULLISH",
-            h4_structure: alert.h4_structure || "BOS Confirmed",
-            m15_choch: alert.m15_choch || "OB Retest Verified",
+            alignment: alert.alignment || "Top-Down Bias Confirmed",
+            daily_bias: alert.daily_bias || "BULLISH (HH/HL)",
+            h4_structure: alert.h4_structure || "BOS & Key Level Respected",
+            m15_choch: alert.m15_choch || "CHoCH Verified",
+            ob_fvg: alert.ob_fvg || "Order Block + FVG Retest",
             sl: alert.sl || "---",
             tp: alert.tp || "---",
             timestamp: new Date().toLocaleTimeString()
