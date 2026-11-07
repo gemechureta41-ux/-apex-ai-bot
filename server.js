@@ -12,21 +12,18 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 let assetDatabase = {
-    "EURUSD": { symbol: "EUR/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
-    "GBPUSD": { symbol: "GBP/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
-    "XAUUSD": { symbol: "GOLD (XAU/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
-    "NAS100": { symbol: "NASDAQ (NAS100)", category: "Indices", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BEARISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
-    "US30": { symbol: "DOW JONES (US30)", category: "Indices", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BEARISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
-    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
-    "ETHUSD": { symbol: "ETHEREUM (ETH/USD)", category: "Crypto", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" },
-    "DXY": { symbol: "DOLLAR INDEX (DXY)", category: "Indices", action: "MONITORING", entry: "---", alignment: "UNALIGNED", daily_bias: "BULLISH", h4_structure: "Tracking", m15_choch: "Scanning", sl: "---", tp: "---" }
+    "EURUSD": { symbol: "EUR/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BULLISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" },
+    "GBPUSD": { symbol: "GBP/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BULLISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" },
+    "XAUUSD": { symbol: "GOLD (XAU/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BULLISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" },
+    "NAS100": { symbol: "NASDAQ (NAS100)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BEARISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" },
+    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BULLISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" }
 };
 
 let activeSignal = assetDatabase["EURUSD"];
 
 bot.start((ctx) => {
     ctx.reply(
-        "🤖 *Apex AI SMC Alignment Bot*\n\nDaily -> 4H -> 15M Timeframe Alignment + Market Hours Countdown (Forex, Crypto, Indices).",
+        "🤖 *Apex AI SMC Master Bot*\n\nSupply & Demand + Order Block + BOS + RR 1:4 Live Analyzer.",
         {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
@@ -46,17 +43,17 @@ app.post('/webhook/tradingview', (req, res) => {
             category: alert.category || "Market",
             action: alert.action || "BUY/SELL",
             entry: alert.entry || "Market Price",
-            alignment: alert.alignment || "FULL ALIGNED",
+            alignment: alert.alignment || "BOS + OB Confirmed",
             daily_bias: alert.daily_bias || "BULLISH",
-            h4_structure: alert.h4_structure || "BOS Confirmed",
-            m15_choch: alert.m15_choch || "15M CHoCH Verified",
+            h4_structure: alert.h4_structure || "BOS Validated",
+            m15_choch: alert.m15_choch || "OB Retest Verified",
             sl: alert.sl || "---",
             tp: alert.tp || "---",
             timestamp: new Date().toLocaleTimeString()
         };
         
         activeSignal = assetDatabase[cleanSymbol];
-        console.log(`[SMC Aligned Alert] ${alert.symbol}:`, activeSignal);
+        console.log(`[SMC Master Alert] ${alert.symbol}:`, activeSignal);
         return res.status(200).json({ status: "success" });
     }
     res.status(400).json({ status: "error" });
