@@ -31,7 +31,7 @@
                 </div>
                 <div>
                     <div class="text-xs font-black text-white tracking-widest uppercase">APEX AI MASTER</div>
-                    <div class="text-[10px] text-cyan-400 font-mono font-semibold neon-text-cyan">Supply/Demand & OB Engine</div>
+                    <div class="text-[10px] text-cyan-400 font-mono font-semibold neon-text-cyan">Live Institutional SMC</div>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -127,22 +127,20 @@
         <!-- TAB 2: OVERVIEW -->
         <div id="tab-overview" class="tab-content hidden space-y-4">
             <div class="glass-card p-5 rounded-2xl glow-cyan space-y-3">
-                <div class="text-xs text-cyan-400 font-black uppercase tracking-wider">Supply, Demand & Order Block System</div>
+                <div class="text-xs text-cyan-400 font-black uppercase tracking-wider">Live SMC Institutional Engine</div>
                 <p class="text-xs text-zinc-300 leading-relaxed">
-                    Bot-ichi kun gabaa gubbaarratti Break of Structure (BOS) hordofuun, iddoowwan Supply/Demand fi Order Block (OB) irraatti deebi'anii tuquu (Retest) sakatta'uun RR 1:4 eeguu dhaan signal dhiyeessa.
+                    Bot-ichi kun gabaa dhugaa (Live Market) irraa TradingView Webhook fayyadamuun qofa ragaa fida. Signal-ni hundi sabaaba Break of Structure (BOS) fi Order Block (OB) qofaaniif dhihaata.
                 </p>
             </div>
         </div>
 
         <!-- TAB 3: HISTORY -->
         <div id="tab-history" class="tab-content hidden space-y-3">
-            <div class="text-xs font-black text-amber-400 uppercase tracking-widest px-1">OB & BOS Signal History</div>
-            <div class="glass-card p-4 rounded-2xl flex justify-between items-center border-emerald-500/30">
-                <div>
-                    <div class="text-xs font-bold text-white">EUR/USD · Bullish OB + BOS</div>
-                    <div class="text-[10px] text-zinc-400">Entry: 1.08520 · Full TP Hit (RR 1:4)</div>
+            <div class="text-xs font-black text-amber-400 uppercase tracking-widest px-1">Live Signal History Log</div>
+            <div id="history-container" class="space-y-2">
+                <div class="glass-card p-4 rounded-2xl text-center text-zinc-400 text-xs">
+                    No live signals recorded yet. Waiting for TradingView Webhook...
                 </div>
-                <span class="text-[10px] text-emerald-400 font-mono font-bold">+4.0 RR</span>
             </div>
         </div>
 
@@ -152,8 +150,8 @@
                 <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-500 to-amber-400 mx-auto flex items-center justify-center text-black text-2xl font-black">
                     <i class="fa-solid fa-user-astronaut"></i>
                 </div>
-                <div class="text-sm font-black text-white" id="user-name">Apex Trader</div>
-                <div class="text-[11px] text-cyan-400 font-mono" id="user-id">@trader</div>
+                <div class="text-sm font-black text-white" id="user-name">GM FX</div>
+                <div class="text-[11px] text-cyan-400 font-mono" id="user-id">@apexforexsupport</div>
                 <div class="text-xs bg-emerald-500/10 text-emerald-400 py-1.5 px-3 rounded-full border border-emerald-500/30 inline-block font-bold">
                     PRO Master Active
                 </div>
@@ -187,8 +185,8 @@
         if (tg) {
             tg.expand();
             if (tg.initDataUnsafe?.user) {
-                document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name || "Apex Trader";
-                document.getElementById('user-id').innerText = "@" + (tg.initDataUnsafe.user.username || "trader");
+                document.getElementById('user-name').innerText = tg.initDataUnsafe.user.first_name || "GM FX";
+                document.getElementById('user-id').innerText = "@" + (tg.initDataUnsafe.user.username || "apexforexsupport");
             }
         }
 
@@ -197,11 +195,17 @@
             document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400");
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
             document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-1 text-cyan-400 font-extrabold neon-text-cyan";
+            
+            if (tabName === 'history') {
+                fetchHistory();
+            }
         }
 
         async function fetchSMCData() {
             const selectElem = document.getElementById('asset-select');
             const selectedAsset = selectElem.value;
+            document.getElementById('selected-symbol-label').innerText = selectElem.options[selectElem.selectedIndex].text;
+
             try {
                 const response = await fetch(`/api/signal?symbol=${selectedAsset}`);
                 const data = await response.json();
@@ -229,7 +233,32 @@
                     signalBox.className = "glass-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden";
                 }
             } catch (err) {
-                console.log("Error fetching data");
+                console.log("Error fetching live data");
+            }
+        }
+
+        async function fetchHistory() {
+            try {
+                const response = await fetch('/api/history');
+                const history = await response.json();
+                const container = document.getElementById('history-container');
+                
+                if (history.length === 0) {
+                    container.innerHTML = `<div class="glass-card p-4 rounded-2xl text-center text-zinc-400 text-xs">No live signals recorded yet. Waiting for TradingView Webhook...</div>`;
+                    return;
+                }
+
+                container.innerHTML = history.map(item => `
+                    <div class="glass-card p-4 rounded-2xl flex justify-between items-center border-${item.action === 'BUY' ? 'emerald' : 'rose'}-500/30">
+                        <div>
+                            <div class="text-xs font-bold text-white">${item.title}</div>
+                            <div class="text-[10px] text-zinc-400">${item.desc} · ${item.time}</div>
+                        </div>
+                        <span class="text-[10px] text-${item.action === 'BUY' ? 'emerald' : 'rose'}-400 font-mono font-bold">${item.action}</span>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.log("Error fetching history");
             }
         }
 
