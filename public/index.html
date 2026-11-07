@@ -18,8 +18,11 @@
         .inst-gold { text-shadow: 0 0 12px rgba(245, 158, 11, 0.7); color: #f59e0b; }
         .neon-green { text-shadow: 0 0 12px rgba(16, 185, 129, 0.8); color: #10b981; }
         .neon-red { text-shadow: 0 0 12px rgba(244, 63, 94, 0.8); color: #f43f5e; }
-        .asset-btn { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.2s ease; }
-        .asset-btn.active { background: rgba(6, 182, 212, 0.2); border-color: #06b6d4; color: #06b6d4; box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); }
+        
+        /* Modal Popup Styles for Clean Choose */
+        .modal-overlay { background: rgba(4, 6, 9, 0.85); backdrop-filter: blur(8px); }
+        .asset-option { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.2s ease; }
+        .asset-option:hover, .asset-option.selected { background: rgba(6, 182, 212, 0.2); border-color: #06b6d4; color: #06b6d4; }
     </style>
 </head>
 <body class="p-4 select-none pb-28">
@@ -53,30 +56,18 @@
                 </div>
             </div>
 
-            <!-- Custom Asset Selector Grid (Choose Buttons) -->
-            <div class="obsidian-card p-4 rounded-2xl shadow-xl space-y-3 glow-cyan">
-                <div class="flex justify-between items-center">
-                    <div class="text-[10px] inst-gold font-bold uppercase tracking-wider">Select Market Asset</div>
-                    <div class="text-[10px] text-cyan-400 font-mono font-bold" id="selected-symbol-label">EUR/USD</div>
+            <!-- Clean Compact Asset Selector (Choose Button Trigger) -->
+            <div class="obsidian-card p-4 rounded-2xl shadow-xl flex justify-between items-center glow-cyan">
+                <div>
+                    <div class="text-[10px] inst-gold font-bold uppercase tracking-wider">Selected Market Asset</div>
+                    <div class="text-sm font-black text-white mt-0.5 flex items-center gap-2">
+                        <span id="selected-symbol-label">EUR/USD</span>
+                        <span class="text-[9px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-500/30 font-mono">Active</span>
+                    </div>
                 </div>
-                
-                <div class="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
-                    <button onclick="selectAsset('EURUSD', 'EUR/USD')" id="btn-EURUSD" class="asset-btn active text-[11px] font-bold py-2 px-1 rounded-xl text-center">EUR/USD</button>
-                    <button onclick="selectAsset('GBPUSD', 'GBP/USD')" id="btn-GBPUSD" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">GBP/USD</button>
-                    <button onclick="selectAsset('USDJPY', 'USD/JPY')" id="btn-USDJPY" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">USD/JPY</button>
-                    <button onclick="selectAsset('USDCAD', 'USD/CAD')" id="btn-USDCAD" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">USD/CAD</button>
-                    <button onclick="selectAsset('USDCHF', 'USD/CHF')" id="btn-USDCHF" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">USD/CHF</button>
-                    <button onclick="selectAsset('AUDUSD', 'AUD/USD')" id="btn-AUDUSD" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">AUD/USD</button>
-                    <button onclick="selectAsset('NZDUSD', 'NZD/USD')" id="btn-NZDUSD" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">NZD/USD</button>
-                    <button onclick="selectAsset('EURJPY', 'EUR/JPY')" id="btn-EURJPY" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">EUR/JPY</button>
-                    <button onclick="selectAsset('GBPJPY', 'GBP/JPY')" id="btn-GBPJPY" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">GBP/JPY</button>
-                    <button onclick="selectAsset('XAUUSD', 'GOLD (XAU/USD)')" id="btn-XAUUSD" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">GOLD</button>
-                    <button onclick="selectAsset('XAGUSD', 'SILVER (XAG/USD)')" id="btn-XAGUSD" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">SILVER</button>
-                    <button onclick="selectAsset('NAS100', 'NASDAQ (NAS100)')" id="btn-NAS100" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">NASDAQ</button>
-                    <button onclick="selectAsset('US30', 'DOW JONES (US30)')" id="btn-US30" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">US30</button>
-                    <button onclick="selectAsset('BTCUSD', 'BITCOIN (BTC/USD)')" id="btn-BTCUSD" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">BITCOIN</button>
-                    <button onclick="selectAsset('ETHUSD', 'ETHEREUM (ETH/USD)')" id="btn-ETHUSD" class="asset-btn text-[11px] font-bold py-2 px-1 rounded-xl text-center">ETHEREUM</button>
-                </div>
+                <button onclick="openAssetModal()" class="bg-gradient-to-r from-cyan-500 to-teal-600 text-black font-black text-xs px-4 py-2.5 rounded-xl shadow-lg hover:opacity-90 transition flex items-center gap-2">
+                    <i class="fa-solid fa-list-ul"></i> Choose Asset
+                </button>
             </div>
 
             <!-- BOS & Order Block Status Card -->
@@ -173,6 +164,37 @@
 
     </div>
 
+    <!-- CHOOSE ASSET MODAL POPUP (Hidden by default, opens on Choose Asset click) -->
+    <div id="asset-modal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4 hidden">
+        <div class="obsidian-card w-full max-w-sm rounded-2xl p-5 space-y-4 glow-cyan border border-cyan-500/30">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <div class="text-xs font-black inst-gold uppercase tracking-wider">Choose Trading Asset</div>
+                <button onclick="closeAssetModal()" class="text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Asset Grid List (15 Assets) -->
+            <div class="grid grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1">
+                <button onclick="selectAsset('EURUSD', 'EUR/USD')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">EUR/USD</button>
+                <button onclick="selectAsset('GBPUSD', 'GBP/USD')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">GBP/USD</button>
+                <button onclick="selectAsset('USDJPY', 'USD/JPY')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">USD/JPY</button>
+                <button onclick="selectAsset('USDCAD', 'USD/CAD')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">USD/CAD</button>
+                <button onclick="selectAsset('USDCHF', 'USD/CHF')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">USD/CHF</button>
+                <button onclick="selectAsset('AUDUSD', 'AUD/USD')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">AUD/USD</button>
+                <button onclick="selectAsset('NZDUSD', 'NZD/USD')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">NZD/USD</button>
+                <button onclick="selectAsset('EURJPY', 'EUR/JPY')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">EUR/JPY</button>
+                <button onclick="selectAsset('GBPJPY', 'GBP/JPY')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">GBP/JPY</button>
+                <button onclick="selectAsset('XAUUSD', 'GOLD (XAU/USD)')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">GOLD</button>
+                <button onclick="selectAsset('XAGUSD', 'SILVER (XAG/USD)')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">SILVER</button>
+                <button onclick="selectAsset('NAS100', 'NASDAQ (NAS100)')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">NASDAQ</button>
+                <button onclick="selectAsset('US30', 'DOW JONES (US30)')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">US30</button>
+                <button onclick="selectAsset('BTCUSD', 'BITCOIN (BTC/USD)')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">BITCOIN</button>
+                <button onclick="selectAsset('ETHUSD', 'ETHEREUM (ETH/USD)')" class="asset-option p-2.5 rounded-xl text-xs font-bold text-center">ETHEREUM</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bottom Navigation Bar -->
     <div class="fixed bottom-0 left-0 right-0 obsidian-card border-t border-slate-800/80 py-3.5 px-6 flex justify-around items-center backdrop-blur-xl z-50">
         <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn flex flex-col items-center gap-1 text-slate-500 hover:text-cyan-400 transition">
@@ -205,11 +227,18 @@
 
         let currentAsset = "EURUSD";
 
+        function openAssetModal() {
+            document.getElementById('asset-modal').classList.remove('hidden');
+        }
+
+        function closeAssetModal() {
+            document.getElementById('asset-modal').classList.add('hidden');
+        }
+
         function selectAsset(symbol, label) {
             currentAsset = symbol;
-            document.querySelectorAll('.asset-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${symbol}`).classList.add('active');
             document.getElementById('selected-symbol-label').innerText = label;
+            closeAssetModal();
             fetchSMCData();
         }
 
