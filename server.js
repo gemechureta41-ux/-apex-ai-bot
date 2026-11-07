@@ -11,19 +11,21 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let assetDatabase = {
-    "EURUSD": { symbol: "EUR/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BULLISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" },
-    "GBPUSD": { symbol: "GBP/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BULLISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" },
-    "XAUUSD": { symbol: "GOLD (XAU/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BULLISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" },
-    "NAS100": { symbol: "NASDAQ (NAS100)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BEARISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" },
-    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto", action: "MONITORING", entry: "---", alignment: "Scanning BOS & OB", daily_bias: "BULLISH", h4_structure: "Waiting BOS", m15_choch: "Scanning OB Zone", sl: "---", tp: "---" }
+// Real-Time Database (Initial state is strict Monitoring / No fake historical signals)
+let liveMarketSignals = {
+    "EURUSD": { symbol: "EUR/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "GBPUSD": { symbol: "GBP/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "XAUUSD": { symbol: "GOLD (XAU/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "NAS100": { symbol: "NASDAQ (NAS100)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" }
 };
 
-let activeSignal = assetDatabase["EURUSD"];
+// Signal History Log (Stores real triggered signals)
+let signalHistory = [];
 
 bot.start((ctx) => {
     ctx.reply(
-        "🤖 *Apex AI SMC Master Bot*\n\nSupply & Demand + Order Block + BOS + RR 1:4 Live Analyzer.",
+        "🤖 *Apex AI Master Bot (Live SMC)*\n\nReal-time Supply/Demand, Order Block & BOS Analyzer from Live Market.",
         {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
@@ -33,40 +35,57 @@ bot.start((ctx) => {
     );
 });
 
+// TradingView Webhook Endpoint (Receives Live Market Alerts)
 app.post('/webhook/tradingview', (req, res) => {
     const alert = req.body;
     if (alert && alert.symbol) {
         const cleanSymbol = alert.symbol.replace('/', '').toUpperCase();
         
-        assetDatabase[cleanSymbol] = {
+        const newSignal = {
             symbol: alert.symbol,
             category: alert.category || "Market",
-            action: alert.action || "BUY/SELL",
-            entry: alert.entry || "Market Price",
-            alignment: alert.alignment || "BOS + OB Confirmed",
+            action: alert.action || "MONITORING",
+            entry: alert.entry || "---",
+            alignment: alert.alignment || "Live Confirmed",
             daily_bias: alert.daily_bias || "BULLISH",
-            h4_structure: alert.h4_structure || "BOS Validated",
+            h4_structure: alert.h4_structure || "BOS Confirmed",
             m15_choch: alert.m15_choch || "OB Retest Verified",
             sl: alert.sl || "---",
             tp: alert.tp || "---",
             timestamp: new Date().toLocaleTimeString()
         };
         
-        activeSignal = assetDatabase[cleanSymbol];
-        console.log(`[SMC Master Alert] ${alert.symbol}:`, activeSignal);
-        return res.status(200).json({ status: "success" });
+        liveMarketSignals[cleanSymbol] = newSignal;
+        
+        // Add to history log
+        signalHistory.unshift({
+            title: `${alert.symbol} · ${alert.action} Setup`,
+            desc: `Entry: ${alert.entry} · Target RR 1:4`,
+            time: newSignal.timestamp,
+            action: alert.action
+        });
+        if (signalHistory.length > 10) signalHistory.pop(); // Keep last 10
+
+        console.log(`[LIVE WEBHOOK RECEIVED] ${alert.symbol}:`, newSignal);
+        return res.status(200).json({ status: "success", data: newSignal });
     }
-    res.status(400).json({ status: "error" });
+    res.status(400).json({ status: "error", message: "Invalid payload" });
 });
 
+// API for Mini App to get live signal
 app.get('/api/signal', (req, res) => {
     const requestedSymbol = req.query.symbol;
-    if (requestedSymbol && assetDatabase[requestedSymbol]) {
-        return res.json(assetDatabase[requestedSymbol]);
+    if (requestedSymbol && liveMarketSignals[requestedSymbol]) {
+        return res.json(liveMarketSignals[requestedSymbol]);
     }
-    res.json(activeSignal);
+    return res.json(liveMarketSignals["EURUSD"]);
+});
+
+// API for History Tab
+app.get('/api/history', (req, res) => {
+    res.json(signalHistory);
 });
 
 bot.launch();
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Apex AI Bot running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Apex AI Master running on port ${PORT}`));
