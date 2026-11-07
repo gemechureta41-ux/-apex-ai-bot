@@ -1,6 +1,7 @@
 const { Telegraf, Markup } = require('telegraf');
 const express = require('express');
 const path = require('path');
+const http = require('http');
 
 const BOT_TOKEN = '9296660841:AAERerzw60pG3E3JZPcIL4XZnbUMoqdj49w';
 const MINI_APP_URL = process.env.RENDER_EXTERNAL_URL || 'https://your-app.onrender.com';
@@ -11,7 +12,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Institutional Market Database with Top-Down Analysis (D1 -> H4 -> H1 -> M15 -> M5)
+// Institutional Market Database (Top-Down Analysis, Liquidity, OB, FVG, CHoCH/BOS)
 let liveMarketSignals = {
     "EURUSD": { symbol: "EUR/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
     "GBPUSD": { symbol: "GBP/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
@@ -72,7 +73,7 @@ app.post('/webhook/tradingview', (req, res) => {
             time: newSignal.timestamp,
             action: alert.action
         });
-        if (signalHistory.length > 15) signalHistory.pop();
+        if (signalHistory.length > 20) signalHistory.pop();
 
         return res.status(200).json({ status: "success", data: newSignal });
     }
@@ -91,6 +92,16 @@ app.get('/api/history', (req, res) => {
     res.json(signalHistory);
 });
 
+// Self-ping to prevent Render sleep mode
+app.get('/ping', (req, res) => res.status(200).send('OK'));
+
 bot.launch();
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Apex AI Master running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Apex AI Master running on port ${PORT}`);
+    setInterval(() => {
+        if (process.env.RENDER_EXTERNAL_URL) {
+            http.get(`${process.env.RENDER_EXTERNAL_URL}/ping`);
+        }
+    }, 300000); // Ping every 5 minutes
+});
