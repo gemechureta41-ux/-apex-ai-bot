@@ -35,11 +35,11 @@ let signalHistory = [];
 
 bot.start((ctx) => {
     ctx.reply(
-        "🤖 *Apex AI Master Bot (Global Pro SMC Engine)*\n\nAdvanced Top-Down Analysis (D1->H4->H1->M15->M5), Liquidity Sweep, Order Block, FVG, & CHoCH/BOS Detector.",
+        "⚡ *APEX AI MASTER* \n\nInstitutional Smart Money & Price Action Intelligence Platform. Tap below to launch the live trading terminal.",
         {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
-                [Markup.button.webApp("⚡ Open Apex AI Mini App", MINI_APP_URL)]
+                [Markup.button.webApp("🚀 Launch Apex AI Terminal", MINI_APP_URL)]
             ])
         }
     );
