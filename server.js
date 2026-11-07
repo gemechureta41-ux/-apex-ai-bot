@@ -11,21 +11,30 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Real-Time Database (Initial state is strict Monitoring / No fake historical signals)
+// 15 Traded Assets Database (Forex Majors, Crosses, Commodities, Indices, Crypto)
 let liveMarketSignals = {
-    "EURUSD": { symbol: "EUR/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "GBPUSD": { symbol: "GBP/USD", category: "Forex", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "EURUSD": { symbol: "EUR/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "GBPUSD": { symbol: "GBP/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "USDJPY": { symbol: "USD/JPY", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "USDCAD": { symbol: "USD/CAD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "USDCHF": { symbol: "USD/CHF", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "AUDUSD": { symbol: "AUD/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "NZDUSD": { symbol: "NZD/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "EURJPY": { symbol: "EUR/JPY", category: "Forex Cross", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "GBPJPY": { symbol: "GBP/JPY", category: "Forex Cross", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
     "XAUUSD": { symbol: "GOLD (XAU/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "XAGUSD": { symbol: "SILVER (XAG/USD)", category: "Commodities", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
     "NAS100": { symbol: "NASDAQ (NAS100)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
-    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" }
+    "US30":   { symbol: "DOW JONES (US30)", category: "Indices", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "BTCUSD": { symbol: "BITCOIN (BTC/USD)", category: "Crypto 24/7", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" },
+    "ETHUSD": { symbol: "ETHEREUM (ETH/USD)", category: "Crypto 24/7", action: "MONITORING", entry: "---", alignment: "Waiting Webhook Alert", daily_bias: "NEUTRAL", h4_structure: "Scanning BOS", m15_choch: "Waiting OB Retest", sl: "---", tp: "---", timestamp: "No Signal Yet" }
 };
 
-// Signal History Log (Stores real triggered signals)
 let signalHistory = [];
 
 bot.start((ctx) => {
     ctx.reply(
-        "🤖 *Apex AI Master Bot (Live SMC)*\n\nReal-time Supply/Demand, Order Block & BOS Analyzer from Live Market.",
+        "🤖 *Apex AI Master Bot (Live SMC)*\n\nReal-time Supply/Demand, Order Block & BOS Analyzer (15 Assets Supported).",
         {
             parse_mode: 'Markdown',
             ...Markup.inlineKeyboard([
@@ -35,7 +44,6 @@ bot.start((ctx) => {
     );
 });
 
-// TradingView Webhook Endpoint (Receives Live Market Alerts)
 app.post('/webhook/tradingview', (req, res) => {
     const alert = req.body;
     if (alert && alert.symbol) {
@@ -55,24 +63,25 @@ app.post('/webhook/tradingview', (req, res) => {
             timestamp: new Date().toLocaleTimeString()
         };
         
-        liveMarketSignals[cleanSymbol] = newSignal;
+        if (liveMarketSignals[cleanSymbol]) {
+            liveMarketSignals[cleanSymbol] = newSignal;
+        } else {
+            liveMarketSignals[cleanSymbol] = newSignal; // Dynamic fallback
+        }
         
-        // Add to history log
         signalHistory.unshift({
             title: `${alert.symbol} · ${alert.action} Setup`,
             desc: `Entry: ${alert.entry} · Target RR 1:4`,
             time: newSignal.timestamp,
             action: alert.action
         });
-        if (signalHistory.length > 10) signalHistory.pop(); // Keep last 10
+        if (signalHistory.length > 15) signalHistory.pop();
 
-        console.log(`[LIVE WEBHOOK RECEIVED] ${alert.symbol}:`, newSignal);
         return res.status(200).json({ status: "success", data: newSignal });
     }
     res.status(400).json({ status: "error", message: "Invalid payload" });
 });
 
-// API for Mini App to get live signal
 app.get('/api/signal', (req, res) => {
     const requestedSymbol = req.query.symbol;
     if (requestedSymbol && liveMarketSignals[requestedSymbol]) {
@@ -81,7 +90,6 @@ app.get('/api/signal', (req, res) => {
     return res.json(liveMarketSignals["EURUSD"]);
 });
 
-// API for History Tab
 app.get('/api/history', (req, res) => {
     res.json(signalHistory);
 });
