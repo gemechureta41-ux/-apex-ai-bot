@@ -8,30 +8,37 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #07090e; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.25); border: 1px solid rgba(6, 182, 212, 0.4); }
-        .glow-gold { box-shadow: 0 0 20px rgba(245, 158, 11, 0.25); border: 1px solid rgba(245, 158, 11, 0.4); }
-        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); border: 1px solid rgba(16, 185, 129, 0.4); }
-        .glow-red { box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); border: 1px solid rgba(244, 63, 94, 0.4); }
-        .neon-text-cyan { text-shadow: 0 0 10px rgba(6, 182, 212, 0.6); }
-        .neon-text-gold { text-shadow: 0 0 10px rgba(245, 158, 11, 0.6); }
-        .neon-text-green { text-shadow: 0 0 10px rgba(16, 185, 129, 0.8); }
-        .neon-text-red { text-shadow: 0 0 10px rgba(244, 63, 94, 0.8); }
+        /* Obsidian Black Theme */
+        body { background-color: #040609; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        
+        /* Glassmorphism with Obsidian tint */
+        .obsidian-card { background: rgba(10, 15, 25, 0.85); backdrop-filter: blur(16px); border: 1px solid rgba(6, 182, 212, 0.12); }
+        
+        /* Neon Cyan & Institutional Gold Glows */
+        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); border: 1px solid rgba(6, 182, 212, 0.4); }
+        .glow-gold { box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); }
+        .glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.25); border: 1px solid rgba(16, 185, 129, 0.4); }
+        .glow-red { box-shadow: 0 0 20px rgba(244, 63, 94, 0.25); border: 1px solid rgba(244, 63, 94, 0.4); }
+
+        /* Neon & Gold Text Effects */
+        .neon-cyan { text-shadow: 0 0 12px rgba(6, 182, 212, 0.7); color: #06b6d4; }
+        .inst-gold { text-shadow: 0 0 12px rgba(245, 158, 11, 0.7); color: #f59e0b; }
+        .neon-green { text-shadow: 0 0 12px rgba(16, 185, 129, 0.8); color: #10b981; }
+        .neon-red { text-shadow: 0 0 12px rgba(244, 63, 94, 0.8); color: #f43f5e; }
     </style>
 </head>
 <body class="p-4 select-none pb-28">
     <div class="max-w-md mx-auto space-y-4">
         
-        <!-- Top App Bar -->
+        <!-- Top Header Bar -->
         <div class="flex justify-between items-center px-1">
             <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-teal-400 to-amber-400 flex items-center justify-center text-black font-black shadow-lg shadow-cyan-500/30">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 via-teal-600 to-amber-500 flex items-center justify-center text-black font-black shadow-lg shadow-cyan-500/20">
                     <i class="fa-solid fa-cube text-base"></i>
                 </div>
                 <div>
                     <div class="text-xs font-black text-white tracking-widest uppercase">APEX AI MASTER</div>
-                    <div class="text-[10px] text-cyan-400 font-mono font-semibold neon-text-cyan">Live Institutional SMC</div>
+                    <div class="text-[10px] neon-cyan font-mono font-semibold">Institutional SMC Engine</div>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -43,21 +50,21 @@
         <!-- TAB 1: SIGNAL AI (MAIN VIEW) -->
         <div id="tab-signal" class="tab-content space-y-4">
             
-            <!-- Market Timer -->
-            <div class="glass-card p-3 rounded-2xl flex justify-between items-center text-xs glow-cyan">
-                <div class="text-[10px] text-zinc-400 uppercase font-bold">Session Timer:</div>
-                <div id="countdown-container" class="text-cyan-300 font-mono text-[11px] font-black neon-text-cyan">
+            <!-- Session Timer -->
+            <div class="obsidian-card p-3 rounded-2xl flex justify-between items-center text-xs glow-cyan">
+                <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Session Timer:</div>
+                <div id="countdown-container" class="neon-cyan font-mono text-[11px] font-black">
                     <span id="countdown-timer">Calculating...</span>
                 </div>
             </div>
 
             <!-- Asset Selector -->
-            <div class="glass-card p-4 rounded-2xl shadow-xl flex justify-between items-center glow-cyan">
+            <div class="obsidian-card p-4 rounded-2xl shadow-xl flex justify-between items-center glow-cyan">
                 <div>
-                    <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider neon-text-gold">Selected Asset</div>
+                    <div class="text-[10px] inst-gold font-bold uppercase tracking-wider">Selected Asset</div>
                     <div class="text-sm font-black text-white mt-0.5" id="selected-symbol-label">EUR/USD</div>
                 </div>
-                <select id="asset-select" onchange="fetchSMCData()" class="bg-slate-900 text-cyan-300 font-black text-xs px-3.5 py-2.5 rounded-xl border border-cyan-500/40 focus:outline-none">
+                <select id="asset-select" onchange="fetchSMCData()" class="bg-[#040609] text-cyan-400 font-black text-xs px-3.5 py-2.5 rounded-xl border border-cyan-500/40 focus:outline-none focus:border-amber-500">
                     <option value="EURUSD">EUR/USD</option>
                     <option value="GBPUSD">GBP/USD</option>
                     <option value="XAUUSD">GOLD (XAU/USD)</option>
@@ -67,68 +74,68 @@
             </div>
 
             <!-- BOS & Order Block Status Card -->
-            <div class="glass-card p-5 rounded-2xl text-center space-y-2 glow-cyan relative overflow-hidden">
-                <div class="text-[10px] text-zinc-400 font-extrabold tracking-widest uppercase">BOS & Order Block Status</div>
-                <div id="alignment-val" class="text-lg font-black text-cyan-400 tracking-tight neon-text-cyan">Scanning BOS & OB...</div>
-                <div class="text-[11px] text-zinc-400 font-medium">Supply/Demand Zone Retest Verified</div>
+            <div class="obsidian-card p-5 rounded-2xl text-center space-y-2 glow-cyan relative overflow-hidden">
+                <div class="text-[10px] text-slate-400 font-extrabold tracking-widest uppercase">BOS & Order Block Status</div>
+                <div id="alignment-val" class="text-lg font-black neon-cyan tracking-tight">Scanning BOS & OB...</div>
+                <div class="text-[11px] text-slate-400 font-medium">Supply/Demand Zone Retest Verified</div>
             </div>
 
             <!-- Main Signal Output -->
-            <div id="signal-card-box" class="glass-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden">
-                <div class="text-xs text-amber-400 font-extrabold uppercase tracking-widest neon-text-gold">Institutional Signal</div>
-                <div id="signal-action" class="text-4xl font-black text-amber-400 tracking-wider neon-text-gold">MONITORING</div>
-                <div class="text-xs text-zinc-200 bg-slate-900/80 py-2 px-4 rounded-xl inline-block border border-amber-500/30">
-                    Execution Price: <span id="entry-price" class="text-amber-400 font-mono font-black text-base neon-text-gold">---</span>
+            <div id="signal-card-box" class="obsidian-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden">
+                <div class="text-xs inst-gold font-extrabold uppercase tracking-widest">Institutional Signal</div>
+                <div id="signal-action" class="text-4xl font-black inst-gold tracking-wider">MONITORING</div>
+                <div class="text-xs text-slate-200 bg-[#040609]/90 py-2 px-4 rounded-xl inline-block border border-amber-500/30">
+                    Execution Price: <span id="entry-price" class="inst-gold font-mono font-black text-base">---</span>
                 </div>
             </div>
 
             <!-- Risk Management (SL & TP 1:4) -->
             <div class="grid grid-cols-2 gap-3 text-xs">
-                <div class="glass-card p-4 rounded-2xl glow-red">
-                    <div class="text-rose-400 text-[10px] font-black uppercase tracking-wider">
+                <div class="obsidian-card p-4 rounded-2xl glow-red">
+                    <div class="text-rose-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-shield-halved text-rose-500"></i> STOP LOSS (SL)
                     </div>
-                    <div class="font-black text-rose-400 font-mono mt-2 text-base neon-text-red" id="sl-val">---</div>
+                    <div class="font-black neon-red font-mono mt-2 text-base" id="sl-val">---</div>
                 </div>
-                <div class="glass-card p-4 rounded-2xl glow-green">
-                    <div class="text-emerald-400 text-[10px] font-black uppercase tracking-wider">
+                <div class="obsidian-card p-4 rounded-2xl glow-green">
+                    <div class="text-emerald-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-bullseye text-emerald-400"></i> FULL TARGET (RR 1:4)
                     </div>
-                    <div class="font-black text-emerald-400 font-mono mt-2 text-base neon-text-green" id="tp-val">---</div>
+                    <div class="font-black neon-green font-mono mt-2 text-base" id="tp-val">---</div>
                 </div>
             </div>
 
             <!-- Supply/Demand & OB Breakdown -->
-            <div class="glass-card p-4.5 rounded-2xl space-y-3 border-cyan-500/20">
-                <div class="text-zinc-300 font-extrabold uppercase tracking-wider text-[11px] border-b border-slate-800 pb-2">
+            <div class="obsidian-card p-4.5 rounded-2xl space-y-3 border-cyan-500/20">
+                <div class="text-slate-300 font-extrabold uppercase tracking-wider text-[11px] border-b border-slate-800 pb-2">
                     SMC Structure & OB Breakdown
                 </div>
                 <div class="space-y-2 text-xs">
-                    <div class="bg-slate-900/70 p-3 rounded-xl flex justify-between items-center">
-                        <span class="text-zinc-400 font-semibold">Daily Bias:</span>
-                        <span class="font-black text-amber-400 font-mono text-xs" id="daily-bias-val">NEUTRAL</span>
+                    <div class="bg-[#040609]/70 p-3 rounded-xl flex justify-between items-center border border-slate-800/60">
+                        <span class="text-slate-400 font-semibold">Daily Bias:</span>
+                        <span class="font-black inst-gold font-mono text-xs" id="daily-bias-val">NEUTRAL</span>
                     </div>
-                    <div class="bg-slate-900/70 p-3 rounded-xl flex justify-between items-center">
-                        <span class="text-zinc-400 font-semibold">4H BOS Status:</span>
-                        <span class="font-black text-cyan-400 font-mono text-xs" id="h4-val">Waiting BOS</span>
+                    <div class="bg-[#040609]/70 p-3 rounded-xl flex justify-between items-center border border-slate-800/60">
+                        <span class="text-slate-400 font-semibold">4H BOS Status:</span>
+                        <span class="font-black neon-cyan font-mono text-xs" id="h4-val">Waiting BOS</span>
                     </div>
-                    <div class="bg-slate-900/70 p-3 rounded-xl flex justify-between items-center">
-                        <span class="text-zinc-400 font-semibold">15M OB Retest:</span>
-                        <span class="font-black text-emerald-400 font-mono text-xs" id="m15-val">Scanning Zone</span>
+                    <div class="bg-[#040609]/70 p-3 rounded-xl flex justify-between items-center border border-slate-800/60">
+                        <span class="text-slate-400 font-semibold">15M OB Retest:</span>
+                        <span class="font-black neon-green font-mono text-xs" id="m15-val">Scanning Zone</span>
                     </div>
                 </div>
             </div>
 
-            <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-cyan-400 via-teal-400 to-amber-400 text-black font-black py-4 rounded-2xl shadow-lg text-xs tracking-widest uppercase">
+            <button onclick="fetchSMCData()" class="w-full bg-gradient-to-r from-cyan-400 via-teal-500 to-amber-500 text-black font-black py-4 rounded-2xl shadow-xl shadow-cyan-500/20 text-xs tracking-widest uppercase transition transform active:scale-95">
                 Refresh Live Market Data
             </button>
         </div>
 
         <!-- TAB 2: OVERVIEW -->
         <div id="tab-overview" class="tab-content hidden space-y-4">
-            <div class="glass-card p-5 rounded-2xl glow-cyan space-y-3">
-                <div class="text-xs text-cyan-400 font-black uppercase tracking-wider">Live SMC Institutional Engine</div>
-                <p class="text-xs text-zinc-300 leading-relaxed">
+            <div class="obsidian-card p-5 rounded-2xl glow-cyan space-y-3">
+                <div class="text-xs neon-cyan font-black uppercase tracking-wider">Live SMC Institutional Engine</div>
+                <p class="text-xs text-slate-300 leading-relaxed">
                     Apex AI Master analyzes live market data strictly via TradingView Webhook alerts. Signals are generated based on multi-timeframe Break of Structure (BOS), Supply/Demand zones, and Order Block (OB) retests with a strict 1:4 Risk-to-Reward ratio.
                 </p>
             </div>
@@ -136,9 +143,9 @@
 
         <!-- TAB 3: HISTORY -->
         <div id="tab-history" class="tab-content hidden space-y-3">
-            <div class="text-xs font-black text-amber-400 uppercase tracking-widest px-1">Live Signal History Log</div>
+            <div class="text-xs font-black inst-gold uppercase tracking-widest px-1">Live Signal History Log</div>
             <div id="history-container" class="space-y-2">
-                <div class="glass-card p-4 rounded-2xl text-center text-zinc-400 text-xs">
+                <div class="obsidian-card p-4 rounded-2xl text-center text-slate-400 text-xs">
                     No live signals recorded yet. Waiting for TradingView Webhook...
                 </div>
             </div>
@@ -146,13 +153,13 @@
 
         <!-- TAB 4: PROFILE -->
         <div id="tab-profile" class="tab-content hidden space-y-4">
-            <div class="glass-card p-5 rounded-2xl text-center space-y-3 glow-gold">
-                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-500 to-amber-400 mx-auto flex items-center justify-center text-black text-2xl font-black">
+            <div class="obsidian-card p-5 rounded-2xl text-center space-y-3 glow-gold">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-cyan-500 to-amber-500 mx-auto flex items-center justify-center text-black text-2xl font-black shadow-lg">
                     <i class="fa-solid fa-user-astronaut"></i>
                 </div>
                 <div class="text-sm font-black text-white" id="user-name">GM FX</div>
-                <div class="text-[11px] text-cyan-400 font-mono" id="user-id">@apexforexsupport</div>
-                <div class="text-xs bg-emerald-500/10 text-emerald-400 py-1.5 px-3 rounded-full border border-emerald-500/30 inline-block font-bold">
+                <div class="text-[11px] neon-cyan font-mono" id="user-id">@apexforexsupport</div>
+                <div class="text-xs bg-emerald-500/15 text-emerald-400 py-1.5 px-3 rounded-full border border-emerald-500/30 inline-block font-bold">
                     PRO Master Active
                 </div>
             </div>
@@ -160,23 +167,23 @@
 
     </div>
 
-    <!-- Bottom Navigation -->
-    <div class="fixed bottom-0 left-0 right-0 glass-card border-t border-slate-800 py-3.5 px-6 flex justify-around items-center z-50">
-        <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400">
+    <!-- Bottom Navigation Bar -->
+    <div class="fixed bottom-0 left-0 right-0 obsidian-card border-t border-slate-800/80 py-3.5 px-6 flex justify-around items-center backdrop-blur-xl z-50">
+        <button onclick="switchTab('overview')" id="nav-overview" class="nav-btn flex flex-col items-center gap-1 text-slate-500 hover:text-cyan-400 transition">
             <i class="fa-solid fa-chart-pie text-base"></i>
-            <span class="text-[10px]">Overview</span>
+            <span class="text-[10px] font-bold">Overview</span>
         </button>
-        <button onclick="switchTab('signal')" id="nav-signal" class="nav-btn flex flex-col items-center gap-1 text-cyan-400 font-extrabold neon-text-cyan">
+        <button onclick="switchTab('signal')" id="nav-signal" class="nav-btn flex flex-col items-center gap-1 neon-cyan font-extrabold">
             <i class="fa-solid fa-cube text-base"></i>
             <span class="text-[10px]">Signal AI</span>
         </button>
-        <button onclick="switchTab('history')" id="nav-history" class="nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400">
+        <button onclick="switchTab('history')" id="nav-history" class="nav-btn flex flex-col items-center gap-1 text-slate-500 hover:text-cyan-400 transition">
             <i class="fa-solid fa-clock-rotate-left text-base"></i>
-            <span class="text-[10px]">History</span>
+            <span class="text-[10px] font-bold">History</span>
         </button>
-        <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400">
+        <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center gap-1 text-slate-500 hover:text-cyan-400 transition">
             <i class="fa-regular fa-user text-base"></i>
-            <span class="text-[10px]">Profile</span>
+            <span class="text-[10px] font-bold">Profile</span>
         </button>
     </div>
 
@@ -192,9 +199,9 @@
 
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex flex-col items-center gap-1 text-zinc-500 hover:text-cyan-400");
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.className = "nav-btn flex flex-col items-center gap-1 text-slate-500 hover:text-cyan-400 transition");
             document.getElementById(`tab-${tabName}`).classList.remove('hidden');
-            document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-1 text-cyan-400 font-extrabold neon-text-cyan";
+            document.getElementById(`nav-${tabName}`).className = "nav-btn flex flex-col items-center gap-1 neon-cyan font-extrabold";
             
             if (tabName === 'history') {
                 fetchHistory();
@@ -223,14 +230,14 @@
                 actionElem.innerText = data.action;
 
                 if(data.action === "BUY") {
-                    actionElem.className = "text-4xl font-black text-emerald-400 animate-pulse tracking-wider neon-text-green";
-                    signalBox.className = "glass-card p-6 rounded-2xl text-center space-y-3 glow-green relative overflow-hidden";
+                    actionElem.className = "text-4xl font-black neon-green animate-pulse tracking-wider";
+                    signalBox.className = "obsidian-card p-6 rounded-2xl text-center space-y-3 glow-green relative overflow-hidden";
                 } else if(data.action === "SELL") {
-                    actionElem.className = "text-4xl font-black text-rose-500 animate-pulse tracking-wider neon-text-red";
-                    signalBox.className = "glass-card p-6 rounded-2xl text-center space-y-3 glow-red relative overflow-hidden";
+                    actionElem.className = "text-4xl font-black neon-red animate-pulse tracking-wider";
+                    signalBox.className = "obsidian-card p-6 rounded-2xl text-center space-y-3 glow-red relative overflow-hidden";
                 } else {
-                    actionElem.className = "text-3xl font-black text-amber-400 tracking-wider neon-text-gold";
-                    signalBox.className = "glass-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden";
+                    actionElem.className = "text-4xl font-black inst-gold tracking-wider";
+                    signalBox.className = "obsidian-card p-6 rounded-2xl text-center space-y-3 glow-gold relative overflow-hidden";
                 }
             } catch (err) {
                 console.log("Error fetching live data");
@@ -244,15 +251,15 @@
                 const container = document.getElementById('history-container');
                 
                 if (history.length === 0) {
-                    container.innerHTML = `<div class="glass-card p-4 rounded-2xl text-center text-zinc-400 text-xs">No live signals recorded yet. Waiting for TradingView Webhook...</div>`;
+                    container.innerHTML = `<div class="obsidian-card p-4 rounded-2xl text-center text-slate-400 text-xs">No live signals recorded yet. Waiting for TradingView Webhook...</div>`;
                     return;
                 }
 
                 container.innerHTML = history.map(item => `
-                    <div class="glass-card p-4 rounded-2xl flex justify-between items-center border-${item.action === 'BUY' ? 'emerald' : 'rose'}-500/30">
+                    <div class="obsidian-card p-4 rounded-2xl flex justify-between items-center border-${item.action === 'BUY' ? 'emerald' : 'rose'}-500/30">
                         <div>
                             <div class="text-xs font-bold text-white">${item.title}</div>
-                            <div class="text-[10px] text-zinc-400">${item.desc} · ${item.time}</div>
+                            <div class="text-[10px] text-slate-400">${item.desc} · ${item.time}</div>
                         </div>
                         <span class="text-[10px] text-${item.action === 'BUY' ? 'emerald' : 'rose'}-400 font-mono font-bold">${item.action}</span>
                     </div>
@@ -282,6 +289,8 @@
             if (isClosed) {
                 badge.className = "w-2.5 h-2.5 rounded-full bg-rose-500";
                 statusText.innerText = "CLOSED";
+                statusText.className = "text-[10px] font-extrabold text-rose-400 bg-rose-500/10 px-3 py-1 rounded-full border border-rose-500/30 glow-red";
+                
                 let targetSunday = new Date(now);
                 let daysUntilSunday = (7 - day) % 7;
                 if (daysUntilSunday === 0 && hour >= 22) daysUntilSunday = 7;
@@ -301,6 +310,8 @@
             } else {
                 badge.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping";
                 statusText.innerText = "LIVE";
+                statusText.className = "text-[10px] font-extrabold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 glow-green";
+
                 let targetFriday = new Date(now);
                 let daysUntilFriday = (5 - day + 7) % 7;
                 targetFriday.setUTCDate(now.getUTCDate() + daysUntilFriday);
