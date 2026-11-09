@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Institutional Market Database (Top-Down Analysis, Liquidity, OB, FVG, CHoCH/BOS)
+// Institutional Market Database
 let liveMarketSignals = {
     "EURUSD": { symbol: "EUR/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
     "GBPUSD": { symbol: "GBP/USD", category: "Forex Major", action: "MONITORING", entry: "---", alignment: "Waiting HTF Bias", daily_bias: "NEUTRAL", h4_structure: "Scanning Key Levels", m15_choch: "Waiting CHoCH/BOS", ob_fvg: "Scanning OB/FVG", sl: "---", tp: "---", timestamp: "No Signal Yet" },
@@ -92,8 +92,9 @@ app.get('/api/history', (req, res) => {
     res.json(signalHistory);
 });
 
-// Self-ping endpoint
+// Ping Endpoints for 24/7 Keep-Alive
 app.get('/ping', (req, res) => res.status(200).send('OK'));
+app.get('/health', (req, res) => res.status(200).json({ status: "healthy", timestamp: new Date() }));
 
 bot.launch();
 
@@ -101,14 +102,15 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Apex AI Master running on port ${PORT}`);
     
-    // Server-ni akka dammaqee turuuf daqiiqaa 4n 4n self-ping godha
-    setInterval(async () => {
-        try {
-            const url = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
-            await fetch(`${url}/ping`);
-            console.log("Keep-alive ping sent successfully.");
-        } catch (err) {
-            console.log("Ping error:", err.message);
+    // Self-ping every 2 minutes (120,000 ms)
+    setInterval(() => {
+        const serviceUrl = process.env.RENDER_EXTERNAL_URL;
+        if (serviceUrl) {
+            http.get(`${serviceUrl}/ping`, (res) => {
+                console.log(`Self-ping status: ${res.statusCode}`);
+            }).on('error', (err) => {
+                console.log(`Self-ping error: ${err.message}`);
+            });
         }
-    }, 240000); // Daqiiqaa 4 (240,000 ms)
+    }, 120000);
 });
