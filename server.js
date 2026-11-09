@@ -92,16 +92,23 @@ app.get('/api/history', (req, res) => {
     res.json(signalHistory);
 });
 
-// Self-ping to prevent Render sleep mode
+// Self-ping endpoint
 app.get('/ping', (req, res) => res.status(200).send('OK'));
 
 bot.launch();
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Apex AI Master running on port ${PORT}`);
-    setInterval(() => {
-        if (process.env.RENDER_EXTERNAL_URL) {
-            http.get(`${process.env.RENDER_EXTERNAL_URL}/ping`);
+    
+    // Server-ni akka dammaqee turuuf daqiiqaa 4n 4n self-ping godha
+    setInterval(async () => {
+        try {
+            const url = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+            await fetch(`${url}/ping`);
+            console.log("Keep-alive ping sent successfully.");
+        } catch (err) {
+            console.log("Ping error:", err.message);
         }
-    }, 300000); // Ping every 5 minutes
+    }, 240000); // Daqiiqaa 4 (240,000 ms)
 });
