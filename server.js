@@ -102,7 +102,7 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Apex AI Master running on port ${PORT}`);
     
-    // Self-ping every 2 minutes (120,000 ms)
+    // Self-ping every 2 minutes to prevent sleep mode
     setInterval(() => {
         const serviceUrl = process.env.RENDER_EXTERNAL_URL;
         if (serviceUrl) {
